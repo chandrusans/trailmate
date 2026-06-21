@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrailMate DMV — Weekend Hikes for MD, VA, DC & Nearby</title>
+<style>
+  :root{
+    --green:#2f6f4f; --green-dk:#1f4d36; --green-lt:#e8f1ec;
+    --amber:#c8843c; --red:#b4513f; --blue:#3a6ea5;
+    --ink:#26312b; --muted:#6a7670; --line:#e2e8e4; --bg:#f6f8f6; --card:#fff;
+    --shadow:0 1px 3px rgba(0,0,0,.07),0 6px 18px rgba(0,0,0,.05);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.5}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+  header{background:linear-gradient(135deg,var(--green-dk),var(--green));color:#fff;padding:26px 20px 20px}
+  .wrap{max-width:1180px;margin:0 auto}
+  header h1{margin:0 0 4px;font-size:26px;letter-spacing:.2px}
+  header p{margin:0;opacity:.92;font-size:14px;max-width:760px}
+  .progress{display:flex;align-items:center;gap:10px;margin-top:12px;max-width:520px}
+  .bar{flex:1;height:9px;background:rgba(255,255,255,.28);border-radius:999px;overflow:hidden}
+  .bar span{display:block;height:100%;width:0;background:#ffd66b;border-radius:999px;transition:width .3s}
+  #progtext{font-size:12.5px;font-weight:700;white-space:nowrap}
+  #resetdone{font-size:11.5px;color:#fff;opacity:.7;text-decoration:underline}
+  .card.done{border-color:#bcdcc8;background:#f4fbf6}
+  .donebadge{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
+    color:#1f6b3b;background:#cdeed8;border:1px solid #a9deba;padding:3px 8px;border-radius:6px;margin-bottom:6px}
+  .done-btn.on{background:var(--green);color:#fff;border-color:var(--green)}
+  .notebox{width:100%;min-height:70px;resize:vertical;font:inherit;font-size:13px;padding:8px 10px;
+    border:1px solid var(--line);border-radius:8px;background:#fffdf6;color:var(--ink)}
+  .noteflag{color:var(--amber);font-weight:800;margin-left:4px}
+  #syncbtn{font-size:11.5px;color:#fff;opacity:.85;text-decoration:underline;margin-left:2px}
+  .syncstatus{font-size:11.5px;font-weight:700;opacity:.95}
+  .syncpanel{position:fixed;inset:0;background:rgba(20,30,24,.55);display:flex;align-items:flex-start;
+    justify-content:center;padding:40px 16px;z-index:50;overflow:auto}
+  .syncpanel[hidden]{display:none}
+  .syncbox{background:#fff;color:var(--ink);max-width:480px;width:100%;border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+  .syncbox h3{margin:0 0 6px}
+  .syncbox p{font-size:13px;color:#41504a;margin:0 0 10px}
+  .syncbox p.warn{background:#fdf3e3;border:1px solid #f1d9b3;color:#7a4d12;border-radius:8px;padding:8px 10px}
+  .syncbox label{display:block;font-size:12px;font-weight:600;color:var(--green-dk);margin:8px 0 2px}
+  .syncbox input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px}
+  .syncactions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .ghmsg{font-size:12.5px;margin-top:10px;color:var(--green-dk);min-height:18px}
+  .controls{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);padding:12px 20px}
+  .controls .wrap{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  input[type=search]{flex:1 1 240px;min-width:200px;padding:10px 12px;border:1px solid var(--line);
+    border-radius:10px;font-size:14px;background:#fff}
+  select{padding:10px 10px;border:1px solid var(--line);border-radius:10px;font-size:13px;background:#fff;color:var(--ink)}
+  .count{font-size:13px;color:var(--muted);margin-left:auto;white-space:nowrap}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 20px 12px}
+  .chip{font-size:12px;border:1px solid var(--line);background:#fff;color:var(--muted);
+    padding:6px 11px;border-radius:999px;cursor:pointer;user-select:none}
+  .chip.active{background:var(--green);color:#fff;border-color:var(--green)}
+  main{padding:18px 20px 60px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+    overflow:hidden;display:flex;flex-direction:column}
+  .card .top{padding:14px 16px 10px}
+  .card h3{margin:0 0 2px;font-size:17px}
+  .region{font-size:12px;color:var(--muted)}
+  .addr{font-size:12.5px;margin-top:3px}
+  .addr a{color:var(--green-dk);font-weight:600}
+  .hours{font-size:12px;color:var(--muted);margin-top:2px}
+  .camp{font-size:12px;margin:8px 16px 0;color:#5a4a1b;background:#fbf4df;border:1px solid #efe2b8;border-radius:8px;padding:7px 10px}
+  .gmap{width:100%;height:240px;border:1px solid var(--line);border-radius:10px;margin:4px 0 8px}
+  .maplinks{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;font-weight:600}
+  .stats{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px}
+  .pill{font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:999px;background:var(--green-lt);color:var(--green-dk)}
+  .pill.dist{background:#eaf0f6;color:var(--blue)}
+  .pill.drive{background:#efe9f6;color:#6a4ca0}
+  .diff{font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:999px;color:#fff}
+  .d-easy{background:var(--green)} .d-mod{background:var(--amber)} .d-hard{background:var(--red)}
+  .gembadge{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
+    color:#7a4d12;background:#fbe7c6;border:1px solid #f0cf9b;padding:3px 8px;border-radius:6px;margin-bottom:6px}
+  .gembadge.off{color:#5a2d2d;background:#f3dcdc;border-color:#e4bcbc}
+  .note{margin:8px 16px 0;font-size:12px;color:#8a5a1b;background:#fdf3e3;border:1px solid #f1d9b3;
+    border-radius:8px;padding:8px 10px}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+  .tag{font-size:11px;color:var(--muted);background:#f0f3f1;border-radius:6px;padding:3px 7px}
+  .desc{padding:2px 16px 0;font-size:13.5px;color:#3c463f}
+  .acc{border-top:1px solid var(--line);margin-top:12px}
+  details{border-bottom:1px solid var(--line)}
+  details:last-child{border-bottom:none}
+  summary{cursor:pointer;padding:10px 16px;font-size:13px;font-weight:600;color:var(--green-dk);
+    list-style:none;display:flex;align-items:center;gap:8px}
+  summary::-webkit-details-marker{display:none}
+  summary .ic{font-size:14px}
+  summary::after{content:"+";margin-left:auto;color:var(--muted);font-weight:700}
+  details[open] summary::after{content:"–"}
+  .panel{padding:0 16px 12px;font-size:13px;color:#41504a}
+  .panel ul{margin:6px 0;padding-left:18px}
+  .panel li{margin:3px 0}
+  .links{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;background:#fbfcfb;border-top:1px solid var(--line)}
+  .btn{font-size:12.5px;font-weight:600;padding:7px 11px;border-radius:9px;border:1px solid var(--line);
+    background:#fff;color:var(--ink);cursor:pointer}
+  .btn:hover{text-decoration:none;border-color:var(--green);color:var(--green-dk)}
+  .btn.map{background:var(--green);color:#fff;border-color:var(--green)}
+  .empty{text-align:center;color:var(--muted);padding:50px 20px}
+  footer{max-width:1180px;margin:0 auto;padding:0 20px 40px;font-size:12px;color:var(--muted)}
+  footer code{background:#eef2ef;padding:1px 5px;border-radius:4px}
+  @media(max-width:520px){.count{width:100%;margin:0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>🥾 TrailMate DMV</h1>
+    <p>Weekend hikes (3–8 mi) for the family & friends across Maryland, Northern Virginia, the DC metro, and nearby West Virginia getaways — including <strong>local hidden gems</strong> and a few <strong>off-map informal trails</strong> the big apps barely cover. Consolidated trail facts, parking, what to do nearby, and one-tap links to AllTrails, Reddit discussions, and driving directions. Tap the <em>★ Hidden gem</em> chip to see just the under-the-radar picks.</p>
+    <div class="progress">
+      <div class="bar"><span id="barfill"></span></div>
+      <span id="progtext"></span>
+      <a id="resetdone" href="#" title="Clear all check-offs">reset</a>
+      <a id="syncbtn" href="#" title="Set up GitHub sync">⚙ Sync</a>
+      <span id="syncstatus" class="syncstatus"></span>
+    </div>
+  </div>
+</header>
+
+<div id="syncpanel" class="syncpanel" hidden>
+  <div class="syncbox">
+    <h3>☁ Save to your GitHub repo</h3>
+    <p>Your check-offs &amp; notes always save in this browser. To store them permanently and sync across devices, connect a GitHub repo — the app will commit a small data file to it as you make changes.</p>
+    <p class="warn">⚠ Use a <b>private</b> repo and a <b>fine-grained token</b> scoped to only that repo with <b>Contents: Read &amp; Write</b>. A token saved in a browser on a <i>public</i> page can be copied and misused.</p>
+    <label>Owner (your GitHub username)<input id="gh_owner" placeholder="e.g. chandru-sans"></label>
+    <label>Repository name<input id="gh_repo" placeholder="e.g. trailmate-dmv"></label>
+    <label>Branch<input id="gh_branch" value="main"></label>
+    <label>Data file path<input id="gh_path" value="data/trailmate-data.json"></label>
+    <label>Fine-grained token (Contents: Read &amp; Write)<input id="gh_token" type="password" placeholder="github_pat_…"></label>
+    <div class="syncactions">
+      <button id="gh_save" class="btn map">Connect &amp; sync</button>
+      <button id="gh_load" class="btn">Pull latest</button>
+      <button id="gh_disconnect" class="btn">Disconnect</button>
+      <button id="gh_close" class="btn">Close</button>
+    </div>
+    <div id="gh_msg" class="ghmsg"></div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="wrap">
+    <input id="q" type="search" placeholder="Search trails, parks, towns…">
+    <select id="region"><option value="">All regions</option></select>
+    <select id="diff">
+      <option value="">Any difficulty</option>
+      <option value="Easy">Easy</option>
+      <option value="Moderate">Moderate</option>
+      <option value="Hard">Hard</option>
+    </select>
+    <select id="dist">
+      <option value="">Any distance</option>
+      <option value="s">Under 4 mi</option>
+      <option value="m">4–6 mi</option>
+      <option value="l">6–8+ mi</option>
+    </select>
+    <select id="sort">
+      <option value="drive">Sort: Nearest to home</option>
+      <option value="featured">Sort: Featured</option>
+      <option value="hike">Sort: Shortest hike</option>
+      <option value="hikeD">Sort: Longest hike</option>
+    </select>
+    <select id="status">
+      <option value="">All trails</option>
+      <option value="todo">To-do (not yet)</option>
+      <option value="done">✓ Hiked</option>
+    </select>
+    <span class="count" id="count"></span>
+  </div>
+</div>
+<div class="chips wrap" id="chips"></div>
+
+<main class="wrap">
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">No trails match those filters. Try clearing one.</div>
+</main>
+
+<footer class="wrap">
+  Distances, fees and parking change seasonally — always double-check the official park page and live conditions (weather, closures, timed-entry) before you go. Fees noted are typical day-use rates at time of research (June 2026). Links open AllTrails search, a Reddit search, and Google Maps directions for each trailhead. 🚗 drive times are rough estimates from your home in Ellicott City with no traffic — tap "Directions from home" for the live, real-time number. 🕖 hours marked with * follow the typical pattern for that park's managing agency and shift with the seasons (most parks close at sunset, which is as early as ~4:45 PM in winter) — always confirm on the official park page before you go, and note that many gates lock <em>at</em> closing.
+</footer>
+
+<script>
+const TRAILS = [
+ {
+  name:"Cascade Falls Loop", park:"Patapsco Valley State Park", region:"Central/Western MD",
+  town:"Elkridge / Ellicott City", dist:3.0, diff:"Easy",
+  tags:["Kid-friendly","Dog-friendly","Waterfall","Stroller-tough"],
+  q:"Cascade Falls Patapsco Valley State Park Maryland",
+  map:"Cascade Falls Trail Patapsco Valley State Park Elkridge MD",
+  desc:"Short forested loop to a pretty cascade — a long-time family favorite close to Baltimore. Rooty in spots but very doable with kids.",
+  parking:"Park at the Orange Grove / Glen Artney area lot. Day-use service charge ~$3 MD residents / $5 out-of-state (seasonal, often cash or self-pay). Arrive before 10am on summer weekends — lots fill.",
+  nearby:["Historic Main St, Ellicott City — shops, ice cream, lunch spots","Patapsco swinging suspension bridge over the river","Breweries in Elkridge/Columbia for the adults"]
+ },
+ {
+  name:"Sugarloaf Mountain — Northern Peaks / A.M. Thomas Loop", park:"Stronghold / Sugarloaf Mountain", region:"Central/Western MD",
+  town:"Dickerson", dist:5.0, diff:"Moderate",
+  tags:["Dog-friendly","Views","Loop","Free parking"],
+  q:"Sugarloaf Mountain Northern Peaks Trail Maryland",
+  map:"Sugarloaf Mountain East View parking Dickerson MD",
+  desc:"A mini-mountain rising out of the farmland with several stacked loops. Mix the blue Northern Peaks with the white A.M. Thomas trail for a satisfying 5-ish miles and three overlooks. Short 0.6-mi options exist for little legs.",
+  parking:"Free. Several lots up the mountain road (East View, West View). Privately owned preserve — gates close ~one hour before sunset, no pets in some areas? (dogs OK on leash). Gets busy midday in fall.",
+  nearby:["Sugarloaf Mountain Vineyard & winery at the base","Comus Inn / local farm stands","Dickerson Conservation Park"]
+ },
+ {
+  name:"Wolf Rock & Chimney Rock Loop", park:"Catoctin Mountain Park (NPS)", region:"Central/Western MD",
+  town:"Thurmont", dist:4.6, diff:"Moderate",
+  tags:["Dog-friendly","Rock outcrop","Views","Free"],
+  q:"Wolf Rock Chimney Rock Loop Catoctin Mountain Park",
+  map:"Catoctin Mountain Park Visitor Center Thurmont MD",
+  desc:"Classic Catoctin loop to two rocky overlooks — Chimney Rock's ledge view is the payoff. Kids love scrambling the Wolf Rock boulders (supervise near edges).",
+  parking:"Free. Trailhead at the east corner of the Visitor Center lot off Foxville Rd (Rt 77). Additional lot at Rt 77/Catoctin Hollow.",
+  nearby:["Cunningham Falls State Park (next door)","Thurmont — diners, Catoctin Mountain Orchard","Catoctin Wildlife Preserve & zoo"]
+ },
+ {
+  name:"Cunningham Falls — Cliff & Lower Trail", park:"Cunningham Falls State Park", region:"Central/Western MD",
+  town:"Thurmont", dist:3.5, diff:"Easy",
+  tags:["Kid-friendly","Waterfall","Lake nearby","Swimming"],
+  q:"Cunningham Falls Lower Trail Maryland",
+  map:"Cunningham Falls State Park William Houck Area Thurmont MD",
+  desc:"The state's largest cascading waterfall (78 ft). The Lower Trail is a flat half-mile boardwalk to the falls; combine with Cliff Trail and the lake loop for ~3.5 mi.",
+  parking:"William Houck Area lot. Day-use service charge in season (~$3–5/person weekends). Hunting Creek Lake has a swim beach — bring suits in summer.",
+  nearby:["Catoctin Mountain Park trails","Hunting Creek Lake beach & boat rentals","Thurmont eats & orchards"]
+ },
+ {
+  name:"King & Queen Seat — Rocks State Park", park:"Rocks State Park", region:"Central/Western MD",
+  town:"Jarrettsville", dist:3.2, diff:"Moderate",
+  tags:["Views","Rock outcrop","Dog-friendly"],
+  q:"King and Queen Seat Rocks State Park Maryland",
+  map:"Rocks State Park main area Jarrettsville MD",
+  desc:"Short but rocky climb to a dramatic 190-ft rock outcrop overlooking Deer Creek valley. Great quick adventure feel for older kids.",
+  parking:"Small lots along Rocks Chrome Hill Rd / Rt 24. Free–small fee depending on area. Fills fast — go early.",
+  nearby:["Kilgore Falls (separate Rocks SP area) — short walk to a swimming falls","Deer Creek tubing","Jarrettsville Creamery for ice cream"]
+ },
+ {
+  name:"Annapolis Rock via Appalachian Trail", park:"South Mountain State Park", region:"Central/Western MD",
+  town:"Myersville", dist:5.2, diff:"Moderate",
+  tags:["AT","Views","Dog-friendly","Backpacker-lite"],
+  q:"Annapolis Rock Appalachian Trail Maryland",
+  map:"Annapolis Rock AT parking US 40 Myersville MD",
+  desc:"A gradual stretch of the AT to a west-facing cliff over Greenbrier Lake — one of the best easy-effort views in Maryland. Popular with climbers and overnighters.",
+  parking:"Free AT lot on US-40 (eastbound side). Very popular weekends; lot overflows by mid-morning.",
+  nearby:["Greenbrier State Park — lake swimming & picnics","Washington Monument State Park (original stone tower)","Smoketown Brewing in Brunswick / Myersville eats"]
+ },
+ {
+  name:"Sweet Air Loop", park:"Gunpowder Falls State Park", region:"Central/Western MD",
+  town:"Baldwin", dist:5.0, diff:"Easy",
+  tags:["Kid-friendly","Dog-friendly","River","Free"],
+  q:"Gunpowder Falls Sweet Air area loop Maryland",
+  map:"Gunpowder Falls State Park Sweet Air area Baldwin MD",
+  desc:"Quiet, gently rolling loops along the Little Gunpowder Falls — meadows, woods and easy river access. Low-stress miles for a mixed-ability group.",
+  parking:"Free gravel lot at the Sweet Air area (Dks Rd). Rarely crowded vs. the Hereford/NCR sections.",
+  nearby:["NCR/Torrey Brown rail-trail for biking","Boordy Vineyards nearby","Jerusalem Mill historic village"]
+ },
+ {
+  name:"Billy Goat Trail A + Towpath Loop", park:"C&O Canal NHP — Great Falls MD", region:"DC Metro / Close-in",
+  town:"Potomac", dist:3.9, diff:"Hard",
+  tags:["Rock scramble","Views","Iconic","No dogs (Sec A)"],
+  q:"Billy Goat Trail Section A Great Falls Maryland",
+  map:"Great Falls Tavern Visitor Center Potomac MD",
+  desc:"The DMV's signature scramble — 1.7 mi of boulder-hopping along the Potomac gorge (including the famous traverse), returned via the flat C&O towpath for ~3.9 mi. Not for small kids or dogs; thrilling for fit teens/adults.",
+  parking:"$20/vehicle at Great Falls Tavern (7-day NPS pass) — or park free at Carderock and walk in. Arrive early; the lot closes when full on nice weekends.",
+  nearby:["Great Falls overlooks & historic canal boats","Glen Echo Park (carousel, arts)","Potomac Village cafes & Old Angler's Inn"]
+ },
+ {
+  name:"Great Falls MD — Overlook & Gold Mine Loop", park:"C&O Canal NHP — Great Falls MD", region:"DC Metro / Close-in",
+  town:"Potomac", dist:4.7, diff:"Easy",
+  tags:["Kid-friendly","Waterfall views","Stroller-OK (towpath)","History"],
+  q:"Gold Mine Loop Great Falls Maryland C&O Canal",
+  map:"Great Falls Tavern Visitor Center Potomac MD",
+  desc:"Flat towpath out to the Falls Overlook boardwalk (huge cascades), then the wooded Gold Mine Loop. Easy mileage with a big scenic payoff — ideal mixed family day.",
+  parking:"$20/vehicle at Great Falls Tavern (7-day pass). Restrooms & visitor center on site.",
+  nearby:["Billy Goat C/B sections for an easier scramble","Glen Echo Park","Potomac Village dining"]
+ },
+ {
+  name:"Western Ridge & Valley Trail Loop", park:"Rock Creek Park (NPS)", region:"DC Metro / Close-in",
+  town:"Washington, DC", dist:5.6, diff:"Moderate",
+  tags:["In-city","Dog-friendly","Free","Creek"],
+  q:"Rock Creek Park Western Ridge Valley Trail loop",
+  map:"Rock Creek Park Nature Center Washington DC",
+  desc:"A surprisingly wild forest loop entirely inside DC — ridge and creek-side trails stitched into 5–6 mi. No entry fee, easy to shorten, great rainy-week backup.",
+  parking:"Free at the Nature Center & Planetarium and several picnic lots. Metro-accessible edges too.",
+  nearby:["Rock Creek Nature Center & Planetarium","Peirce Mill historic site","Adams Morgan / Cleveland Park dining"]
+ },
+ {
+  name:"Scott's Run Nature Preserve Loop", park:"Scott's Run Nature Preserve", region:"DC Metro / Close-in",
+  town:"McLean, VA", dist:3.5, diff:"Moderate",
+  tags:["Waterfall","Dog-friendly","Free","Potomac views"],
+  q:"Scotts Run Nature Preserve McLean Virginia waterfall",
+  map:"Scotts Run Nature Preserve parking lot 1 McLean VA",
+  desc:"Woodland trails to a small waterfall spilling into the Potomac plus a cliff overlook. Compact but with real terrain — a great close-in NoVA option.",
+  parking:"Free Fairfax County lots (two small lots on Georgetown Pike). They fill very early on weekends; no parking on the road.",
+  nearby:["Great Falls Park VA (5 min)","Tysons / McLean restaurants","Clemyjontri all-abilities playground"]
+ },
+ {
+  name:"River Trail & Ridge Loop", park:"Great Falls Park (NPS, VA)", region:"Northern Virginia",
+  town:"McLean", dist:4.5, diff:"Moderate",
+  tags:["Waterfall views","Rocky","Dog-friendly","Iconic"],
+  q:"Great Falls Park Virginia River Trail Ridge Trail loop",
+  map:"Great Falls Park Virginia entrance McLean VA",
+  desc:"Stack the cliff-edge River Trail (dramatic gorge & falls views) with the Ridge and Old Carriage trails for a varied ~4.5 mi. The Virginia side of the famous falls.",
+  parking:"$20/vehicle, 7-day pass — cash-free, pay by card/app. Visitor center, restrooms, overlooks right by the lot.",
+  nearby:["Three falls overlooks & Patowmack Canal ruins","Scott's Run Preserve nearby","Great Falls Village — bakeries & dining"]
+ },
+ {
+  name:"Bull Run–Occoquan Trail (Bull Run Marina)", park:"NOVA Parks — Bull Run Regional", region:"Northern Virginia",
+  town:"Clifton", dist:5.0, diff:"Moderate",
+  tags:["River","Spring bluebells","Dog-friendly","Free"],
+  q:"Bull Run Occoquan Trail Bull Run Marina Clifton Virginia",
+  map:"Bull Run Marina Reserve Clifton VA",
+  desc:"Streamside woodland trail with rolling hills; the famous bluebell carpets light up in April. Pick a 4–5 mi out-and-back from Bull Run Marina or Yates Ford.",
+  parking:"Free at Bull Run Marina / Yates Ford lots. The full BROT runs ~18 mi if you want more.",
+  nearby:["Historic Clifton — small-town cafes","Paradise Springs Winery","Occoquan waterfront town (shops, riverside dining)"]
+ },
+ {
+  name:"South Valley & Laurel Loop", park:"Prince William Forest Park (NPS)", region:"Northern Virginia",
+  town:"Triangle", dist:5.5, diff:"Easy",
+  tags:["Kid-friendly","Dog-friendly","Quiet","Creek"],
+  q:"Prince William Forest Park South Valley Trail loop",
+  map:"Prince William Forest Park Visitor Center Triangle VA",
+  desc:"The largest protected piney woods in the DC area — gentle creekside trails, almost always uncrowded. Easy to build a flat 5–6 mi the whole group can handle.",
+  parking:"$20/vehicle, 7-day pass. Huge, rarely-full lots and a visitor center. Bike-friendly scenic loop road too.",
+  nearby:["National Museum of the Marine Corps (free, excellent)","Quantico / Triangle eateries","Leesylvania State Park on the Potomac"]
+ },
+ {
+  name:"Burke Lake Loop", park:"Burke Lake Park (Fairfax County)", region:"Northern Virginia",
+  town:"Fairfax Station", dist:4.7, diff:"Easy",
+  tags:["Kid-friendly","Stroller-OK","Flat","Lake"],
+  q:"Burke Lake Loop Trail Fairfax Virginia",
+  map:"Burke Lake Park Fairfax Station VA",
+  desc:"Flat, well-maintained gravel loop around a pretty lake — the gold-standard easy family hike. Add the mini train, carousel and ice cream for a full day with younger kids.",
+  parking:"Free for Fairfax residents; small fee for non-residents on summer weekends. Big lots.",
+  nearby:["Burke Lake mini-train, carousel & disc golf","Mellow Mushroom / Burke eateries","Lake Accotink Park nearby"]
+ },
+ {
+  name:"Whiteoak Canyon Lower Falls", park:"Shenandoah National Park", region:"Northern Virginia",
+  town:"Syria", dist:4.6, diff:"Moderate",
+  tags:["Waterfall","Swimming holes","Dog-friendly","Big day"],
+  q:"Whiteoak Canyon lower falls Shenandoah trail",
+  map:"Whiteoak Canyon lower trailhead Syria VA",
+  desc:"From the lower (Berry Hollow) trailhead, climb through a series of waterfalls and emerald pools — turn around at the lower falls (~4.6 mi) or push higher for 8–9 mi. Summer swimming holes are a hit.",
+  parking:"Lower lot off Weakley Hollow Rd (small fee/Shenandoah pass area). The in-park upper trailhead requires the $30 Shenandoah entrance pass via Skyline Drive.",
+  nearby:["Old Rag trailhead (next valley)","Graves Mountain Farm & Lodges","Sperryville — galleries, Hopkins Ordinary, dining"]
+ },
+ {
+  name:"Hawksbill Summit Loop", park:"Shenandoah National Park", region:"Northern Virginia",
+  town:"Luray", dist:2.9, diff:"Moderate",
+  tags:["Highest peak","Big views","Dog-friendly"],
+  q:"Hawksbill Mountain loop Shenandoah Skyline Drive",
+  map:"Hawksbill Gap parking Skyline Drive Shenandoah",
+  desc:"Short, punchy climb to Shenandoah's highest summit (4,050 ft) with sweeping panoramas. Great low-mileage, high-reward option on a Skyline Drive day.",
+  parking:"Hawksbill Gap lot on Skyline Drive. Requires Shenandoah entrance pass ($30/vehicle, 7-day).",
+  nearby:["Skyline Drive overlooks & Big Meadows","Luray Caverns","Spelunker's burgers/custard in Front Royal"]
+ },
+ {
+  name:"Bears Den to Raven Rocks (AT)", park:"Appalachian Trail — Blue Ridge", region:"Northern Virginia",
+  town:"Bluemont", dist:6.5, diff:"Hard",
+  tags:["AT","Roller coaster","Views","Dog-friendly"],
+  q:"Raven Rocks Appalachian Trail Bears Den Virginia",
+  map:"Bears Den Trail Center Bluemont VA",
+  desc:"Part of the AT's infamous 'Roller Coaster' — steep ups and downs to the Raven Rocks overlook. A genuine workout and a rewarding view; best for fit adults/teens.",
+  parking:"Free AT lots at Bears Den / Rt 7. Bears Den overlook itself is a short, easy walk if you want the view without the full climb.",
+  nearby:["Bears Den Overlook (easy 0.25 mi)","Bluemont Vineyards & Dirt Farm Brewing","Historic Bluemont & Round Hill"]
+ },
+ {
+  name:"Maryland Heights Overlook Loop", park:"Harpers Ferry NHP", region:"WV / Nearby Getaways",
+  town:"Harpers Ferry, WV", dist:5.5, diff:"Hard",
+  tags:["Iconic view","History","Civil War","Dog-friendly"],
+  q:"Maryland Heights trail Harpers Ferry overlook",
+  map:"Harpers Ferry National Historical Park Visitor Center",
+  desc:"The postcard view of Harpers Ferry from the cliffs above the river confluence. Steep climb past Civil War fortifications; combine the overlook with the Stone Fort loop for ~5.5–6.5 mi.",
+  parking:"Sandy Hook Rd parking is closed — park at the Harpers Ferry NPS Visitor Center ($20, 7-day) and use the free shuttle/footbridge. Lower-town lots fill very early.",
+  nearby:["Historic Lower Town Harpers Ferry (shops, museums)","The Rabbit Hole / Potomac Grille dining","Tubing & rafting on the Shenandoah"]
+ },
+ {
+  name:"Loudoun Heights Loop (AT)", park:"Harpers Ferry NHP / AT", region:"WV / Nearby Getaways",
+  town:"Harpers Ferry, WV", dist:7.0, diff:"Hard",
+  tags:["AT","Views","Quieter","History"],
+  q:"Loudoun Heights trail Harpers Ferry Appalachian Trail",
+  map:"Harpers Ferry National Historical Park Visitor Center",
+  desc:"The less-crowded sibling to Maryland Heights — a forested AT climb on the Virginia side with overlooks of the town and rivers. A solid 7-mi loop for a strong group.",
+  parking:"Park at the Harpers Ferry NPS Visitor Center ($20, 7-day) and cross the footbridge, or use designated AT pull-offs.",
+  nearby:["Lower Town Harpers Ferry","Hilltop House views","River outfitters & breweries"]
+ },
+ {
+  name:"Lindy Point & Elakala Falls", park:"Blackwater Falls State Park", region:"WV / Nearby Getaways",
+  town:"Davis, WV", dist:3.0, diff:"Easy",
+  tags:["Waterfalls","Kid-friendly","Overlook","Getaway (~3 hr)"],
+  q:"Blackwater Falls Lindy Point Elakala Falls West Virginia",
+  map:"Blackwater Falls State Park Davis WV",
+  desc:"A weekend-getaway pick: short trails to the famous tannic Blackwater Falls, the Elakala cascades, and the Lindy Point cliff overlook. Stack several short hikes into an easy 3 mi of pure scenery.",
+  parking:"Free state-park lots at each trailhead; falls boardwalk has many steps. ~3 hr drive from the DC/Baltimore area — best as an overnight.",
+  nearby:["Blackwater Falls Lodge & restaurant","Thomas, WV — The Purple Fiddle (music), TipTop bakery","Canaan Valley & Dolly Sods for more hiking"]
+ },
+
+ // ───── Hidden gems & local favorites (lighter coverage on the big apps) ─────
+ {
+  name:"McKeldin Rapids & Switchback Loop", park:"Patapsco Valley SP — McKeldin Area", region:"Central/Western MD",
+  town:"Marriottsville", dist:4.2, diff:"Moderate", gem:true,
+  tags:["Hidden gem","River rapids","Dog-friendly","Swimming hole"],
+  q:"McKeldin Rapids Switchback Trail Patapsco Valley",
+  map:"McKeldin Area Patapsco Valley State Park Marriottsville MD",
+  desc:"Locals' worst-kept secret on the quieter McKeldin side of Patapsco — the Switchback loop drops to the McKeldin Rapids, a cascade spilling into a deep pool. Far less crowded than the Avalon/Orange Grove areas.",
+  parking:"Day-use service charge at the McKeldin entrance (~$3–5, seasonal). Gate hours posted; come early summer weekends for the rapids.",
+  nearby:["Marriottsville/Sykesville small-town eats","Liberty Reservoir trails nearby","Historic Main St, Sykesville"]
+ },
+ {
+  name:"Serpentine & Choate Mine Trail", park:"Soldiers Delight Natural Environmental Area", region:"Central/Western MD",
+  town:"Owings Mills", dist:4.0, diff:"Easy", gem:true,
+  tags:["Hidden gem","Rare grasslands","Dog-friendly","Free"],
+  q:"Soldiers Delight Serpentine Trail Choate Mine Maryland",
+  map:"Soldiers Delight Visitor Center Owings Mills MD",
+  desc:"A genuinely unusual landscape — open serpentine 'barrens' of prairie grass and stunted pines found almost nowhere else on the East Coast. Quiet, otherworldly, and right outside Baltimore. Go early for solitude.",
+  parking:"Free lots at the Visitor Center and Deer Park Rd overlook. Sun-exposed — bring water and a hat.",
+  nearby:["Soldiers Delight Visitor Center exhibits","Historic Choate chrome mine remnants","Owings Mills dining & breweries"]
+ },
+ {
+  name:"Goose Creek & Cathedral Loop", park:"Banshee Reeks Nature Preserve", region:"Northern Virginia",
+  town:"Leesburg", dist:5.0, diff:"Easy", gem:true,
+  tags:["Hidden gem","Limited hours","Dog-friendly","Birding"],
+  q:"Banshee Reeks Nature Preserve Goose Creek Cathedral Loop",
+  map:"Banshee Reeks Nature Preserve Leesburg VA",
+  desc:"A Loudoun County secret with 20+ mi of mostly-shaded, very quiet trails through woods and meadow along Goose Creek. The Cathedral pines stretch is the highlight. Almost never crowded.",
+  parking:"Free — but the preserve has limited public hours (often weekends / specific days). Check the Loudoun County / DWR page before you drive out. No through-traffic discovery: it's gated.",
+  nearby:["Historic downtown Leesburg (shops, dining)","Loudoun wineries & breweries (Dirt Farm, Bluemont)","Morven Park & Oatlands historic estates"]
+ },
+ {
+  name:"North Ridge & Ambassador Whitehouse Loop", park:"Sky Meadows State Park", region:"Northern Virginia",
+  town:"Delaplane", dist:4.6, diff:"Moderate", gem:true,
+  tags:["Hidden gem","Big views","Dog-friendly","AT access"],
+  q:"Sky Meadows State Park North Ridge Ambassador Whitehouse trail",
+  map:"Sky Meadows State Park Delaplane VA",
+  desc:"Blue Ridge mountain views and rolling pasture without the Shenandoah crowds or drive. Climb the North Ridge, link the Ambassador Whitehouse trail, and connect to the AT if you want more. A favorite for those in the know.",
+  parking:"State-park day-use fee (~$10/vehicle). Big lots, visitor center, picnic areas — and a dark-sky astronomy program some nights.",
+  nearby:["Paris, VA — Ashby Inn fine dining","Delaplane Cellars & Barrel Oak wineries","Marshall / Front Royal eats"]
+ },
+ {
+  name:"Manassas Gap & Trillium Trail (AT)", park:"G. Richard Thompson WMA", region:"Northern Virginia",
+  town:"Linden", dist:4.5, diff:"Moderate", gem:true,
+  tags:["Hidden gem","Spring trillium","Dog-friendly","Free"],
+  q:"G Richard Thompson Wildlife Management Area Manassas Gap Appalachian Trail trillium",
+  map:"G Richard Thompson WMA Ted Lake parking Linden VA",
+  desc:"Home to one of the largest trillium blooms in the country — in late April/early May the forest floor turns into a sea of white wildflowers. A stretch of the AT through a low-key state wildlife area most people drive right past.",
+  parking:"Free WMA lots. A Virginia DWR access permit is required for adults 17+ who don't hold a hunting/fishing license — grab one online before you go.",
+  nearby:["Apple House (Linden) — famous donuts & BBQ","Linden Vineyards","Front Royal / Skyline Drive north entrance"]
+ },
+ {
+  name:"Riverbend to Great Falls (Potomac Heritage)", park:"Riverbend Park", region:"Northern Virginia",
+  town:"Great Falls", dist:5.0, diff:"Moderate", gem:true,
+  tags:["Hidden gem","River views","Dog-friendly","Quieter approach"],
+  q:"Riverbend Park to Great Falls Potomac Heritage Trail Virginia",
+  map:"Riverbend Park Visitor Center Great Falls VA",
+  desc:"The back-door route to Great Falls: start at quiet Riverbend, follow the Potomac upstream on the Potomac Heritage Trail to the falls and back. You get the famous views with a fraction of the main-entrance crowds — and no entrance fee at Riverbend.",
+  parking:"Free at Riverbend Park (Fairfax County). Visitor center, restrooms, canoe launch. Fills on peak weekends but turns over.",
+  nearby:["Great Falls Park overlooks (reach on foot)","Great Falls Village — bakeries, dining","Colvin Run Mill historic site"]
+ },
+ {
+  name:"Torrey C. Brown (NCR) Rail Trail — Monkton stretch", park:"Gunpowder Falls State Park", region:"Central/Western MD",
+  town:"Monkton", dist:6.0, diff:"Easy", gem:true,
+  tags:["Hidden gem","Stroller-OK","Flat","Bikes & kids"],
+  q:"Torrey C Brown NCR Rail Trail Monkton Maryland",
+  map:"Monkton Station NCR Trail parking Monkton MD",
+  desc:"A flat, shaded former railbed along the Gunpowder — the easiest 'everyone can come' option here. Do a 6-mi out-and-back from Monkton Station; great for strollers, mixed ages, and bikes, with the river alongside.",
+  parking:"Lot at Monkton Station (small fee on summer weekends). Bike & tube rentals at the old station house.",
+  nearby:["Monkton Station snacks & rentals","Boordy Vineyards","Ladew Topiary Gardens (worth a stop)"]
+ },
+ {
+  name:"Cosca / Patuxent woodland loops", park:"Patuxent Research Refuge (USFWS)", region:"DC Metro / Close-in",
+  town:"Laurel", dist:4.0, diff:"Easy", gem:true,
+  tags:["Hidden gem","Birding","Kid-friendly","Free"],
+  q:"Patuxent Research Refuge trails Laurel Maryland hiking",
+  map:"Patuxent Research Refuge National Wildlife Visitor Center Laurel MD",
+  desc:"One of the area's best-kept quiet spots — the nation's only refuge created for wildlife research. Gentle woodland and lakeside loops, superb birding, and a genuinely uncrowded feel minutes off the BW Parkway.",
+  parking:"Free at the National Wildlife Visitor Center. Excellent (free) exhibits — great rainy-day or with-kids backup. No pets on refuge trails.",
+  nearby:["National Wildlife Visitor Center museum","Historic Savage Mill (shops/dining)","Laurel Main St eateries"]
+ },
+ {
+  name:"Rachel Carson Conservation Park (social trails)", park:"Montgomery County Parks", region:"DC Metro / Close-in",
+  town:"Brookeville", dist:4.0, diff:"Moderate", gem:true, informal:true,
+  tags:["Off-map","Informal","Dog-friendly","Solitude"],
+  q:"Rachel Carson Conservation Park Brookeville Maryland trails",
+  map:"Rachel Carson Conservation Park Brookeville MD",
+  desc:"A barely-marked patch of Montgomery County woods along the Hawlings River that locals wander but the apps mostly ignore. Lightly-blazed and social trails — expect to navigate, get muddy, and have the forest to yourself.",
+  parking:"Small gravel lot off Zion Rd. No facilities, no real signage. Download an offline map (CalTopo/Gaia) — trails are unofficial and can be faint.",
+  nearby:["Historic Brookeville (the 'U.S. Capital for a Day')","Olney dining","Triadelphia Reservoir nearby"]
+ },
+ {
+  name:"Patuxent River SP — Hipsley Mill social trails", park:"Patuxent River State Park", region:"Central/Western MD",
+  town:"Woodbine", dist:5.0, diff:"Moderate", gem:true, informal:true,
+  tags:["Off-map","Informal","Dog-friendly","Adventure"],
+  q:"Patuxent River State Park Hipsley Mill Road trails Maryland",
+  map:"Hipsley Mill Road parking Patuxent River State Park Woodbine MD",
+  desc:"Almost entirely undeveloped — a network of unmarked, unofficial paths along the Patuxent that don't appear cleanly on any app. Make-your-own-adventure miles, stream crossings, and total quiet. Bring a GPS and a sense of humor about wet feet.",
+  parking:"Informal pull-off lots (Hipsley Mill Rd / Annapolis Rock Rd). No blazes, no facilities, no cell certainty — go with a charged phone and offline map, and tell someone your plan.",
+  nearby:["Mt. Airy small-town dining","Linganore Winecellars","Damascus / Woodbine farm stands"]
+ },
+
+ // ───── More Maryland trails ─────
+ {
+  name:"Rock Run & Land of Promise Loop", park:"Susquehanna State Park", region:"Central/Western MD",
+  town:"Havre de Grace", dist:5.0, diff:"Moderate",
+  tags:["River","History","Dog-friendly","Loop"],
+  q:"Susquehanna State Park Land of Promise Susquehanna Ridge Rock Run loop",
+  map:"Rock Run Grist Mill Susquehanna State Park Havre de Grace MD",
+  desc:"Stitch the red Susquehanna Ridge, Land of Promise, and Rock Run trails into a varied ~5 mi from the historic Rock Run Grist Mill — river-valley views, old stone ruins, and rolling woods. A favorite all-rounder in Harford County.",
+  parking:"Free lots at the Rock Run Mill / Stafford Rd area. Can be busy at the mill on weekends; trail lots farther up rarely fill.",
+  nearby:["Historic Rock Run Mill & Mansion","Havre de Grace waterfront promenade & lighthouse","Concord Point & decoy museum, downtown dining"]
+ },
+ {
+  name:"Big Red Trail Loop", park:"Greenbrier State Park", region:"Central/Western MD",
+  town:"Boonsboro", dist:5.8, diff:"Moderate",
+  tags:["Lake","Swimming","Dog-friendly","Loop"],
+  q:"Greenbrier State Park Big Red Trail loop Maryland",
+  map:"Greenbrier State Park 21843 National Pike Boonsboro MD",
+  desc:"A wooded mountain loop circling above Greenbrier Lake — pair the hike with a swim at the beach in summer. Connects to the AT and Washington Monument if you want to extend.",
+  parking:"State-park day-use fee (higher in summer). Big lots, beach, restrooms, snack bar. Lake area fills on hot weekends — arrive early.",
+  nearby:["Greenbrier Lake swim beach & boat rentals","Washington Monument State Park (next door)","Boonsboro eats & South Mountain Creamery"]
+ },
+ {
+  name:"Washington Monument via Bartman Hill (AT)", park:"Washington Monument State Park", region:"Central/Western MD",
+  town:"Middletown", dist:3.0, diff:"Moderate",
+  tags:["AT","Historic tower","Views","Dog-friendly"],
+  q:"Washington Monument State Park Bartman Hill Appalachian Trail Maryland",
+  map:"Washington Monument State Park 6620 Zittlestown Rd Middletown MD",
+  desc:"Climb the rocky Bartman Hill trail to the original 1827 stone Washington Monument on the AT — a squat tower with big Blue Ridge views from the top. Short but rewarding; great with older kids.",
+  parking:"Small day-use fee. Lot right by the monument (you can also walk up from the lower lot for more mileage).",
+  nearby:["Greenbrier State Park lake","South Mountain Creamery","Middletown & Boonsboro dining"]
+ },
+ {
+  name:"Lake Shore Trail Loop", park:"Seneca Creek State Park", region:"DC Metro / Close-in",
+  town:"Gaithersburg", dist:3.7, diff:"Easy",
+  tags:["Kid-friendly","Lake","Dog-friendly","Loop"],
+  q:"Seneca Creek State Park Lake Shore Trail loop Clopper Lake",
+  map:"Seneca Creek State Park 11950 Clopper Rd Gaithersburg MD",
+  desc:"Easy, pretty loop around Clopper Lake with boat rentals, a playground, and gentle terrain — a reliable low-effort family day close to the Beltway.",
+  parking:"Small day-use fee. Multiple lakeside lots, visitor center, picnic shelters, disc golf.",
+  nearby:["Clopper Lake boat & kayak rentals","Butler's Orchard (seasonal)","Gaithersburg/Germantown dining"]
+ },
+ {
+  name:"Red Trail to the Beach (Fossil Hunt)", park:"Calvert Cliffs State Park", region:"WV / Nearby Getaways",
+  town:"Lusby", dist:3.6, diff:"Easy",
+  tags:["Kid-friendly","Beach","Fossils","Bay views"],
+  q:"Calvert Cliffs State Park Red Trail beach fossils sharks teeth",
+  map:"Calvert Cliffs State Park 10540 HG Trueman Rd Lusby MD",
+  desc:"Flat 1.8-mi-each-way walk through woods and marsh to a Chesapeake Bay beach famous for prehistoric shark teeth — kids love the fossil hunt. Bring a sieve and a bucket. (Longer drive, but a unique day.)",
+  parking:"Day-use fee (self-pay). Lot, restrooms, and a playground at the trailhead. No swimming/wading near the cliffs (collapse risk).",
+  nearby:["Sharks-tooth hunting on the beach","Calvert Marine Museum (Solomons)","Solomons Island waterfront dining"]
+ },
+ {
+  name:"Canyon Loop — Muddy Creek Falls", park:"Swallow Falls State Park", region:"WV / Nearby Getaways",
+  town:"Oakland", dist:2.0, diff:"Easy",
+  tags:["Waterfalls","Kid-friendly","Old-growth","Getaway (~3 hr)"],
+  q:"Swallow Falls State Park canyon loop Muddy Creek Falls Maryland",
+  map:"Swallow Falls State Park 2470 Maple Glade Rd Oakland MD",
+  desc:"Maximum scenery for minimum effort: a 1–2 mi loop past Maryland's tallest waterfall (Muddy Creek Falls, 53 ft), the Swallow Falls cascades, and a grove of 300-year-old hemlocks. A western-MD/Deep Creek getaway gem.",
+  parking:"Day-use fee. Lot, restrooms on site. Pairs perfectly with a Deep Creek Lake weekend.",
+  nearby:["Deep Creek Lake — boating, dining, state park","Herrington Manor State Park","Oakland & McHenry restaurants"]
+ },
+ {
+  name:"Gunpowder South & Highland Loop (Hereford)", park:"Gunpowder Falls State Park", region:"Central/Western MD",
+  town:"Parkton", dist:5.0, diff:"Moderate",
+  tags:["Trout stream","Dog-friendly","Free","Swimming hole"],
+  q:"Gunpowder Falls Hereford area Gunpowder South Trail Highland loop",
+  map:"Gunpowder Falls Hereford Area Bunker Hill Rd Parkton MD",
+  desc:"The Hereford zone's classic: follow the cold, clear Gunpowder along the South trail and climb the Highland loop for ~5 mi of woods and water. Popular with fly-fishers; swimming holes in summer.",
+  parking:"Free lots off Bunker Hill Rd / Masemore Rd / Falls Rd. Small lots fill on summer weekends — go early.",
+  nearby:["Fly-fishing the Gunpowder tailwater","Prettyboy Reservoir nearby","Monkton/Hereford country stores"]
+ },
+ {
+  name:"Daniels Dam & Alberton River Trail", park:"Patapsco Valley SP — Daniels Area", region:"Central/Western MD",
+  town:"Ellicott City", dist:4.5, diff:"Easy", gem:true,
+  tags:["Dam","Hidden gem","River","Ruins"],
+  q:"Patapsco Valley Daniels Dam Alberton trail Ellicott City",
+  map:"Patapsco Valley State Park Daniels Area Daniels Rd Ellicott City MD",
+  desc:"A local secret minutes from home, centered on the old Daniels Dam on the Patapsco. From the dam you can walk the wide riverside trail upstream toward the Alberton/Daniels mill ruins and a railroad tunnel — flat and easy, and you can stretch it to 5–6 mi out-and-back. The far bank (across the dam) has quieter single-track too. Church ruins and ghost-town atmosphere throughout.",
+  parking:"Free informal gravel lots at the end of Daniels Rd. No facilities. Fills with locals on nice weekends; the riverside trail can flood/stay muddy after heavy rain — check before going.",
+  nearby:["Historic Ellicott City Main St (10 min)","Patapsco Heritage Greenway & old mill sites","Breweries in Ellicott City/Catonsville"]
+ },
+ {
+  name:"Kilgore Falls (Falling Branch)", park:"Rocks State Park — Falling Branch", region:"Central/Western MD",
+  town:"Pylesville", dist:1.2, diff:"Easy",
+  tags:["Waterfall","Kid-friendly","Swimming hole","Short"],
+  q:"Kilgore Falls Falling Branch Rocks State Park Maryland",
+  map:"Falling Branch Area Kilgore Falls 1026 Falling Branch Rd Pylesville MD",
+  desc:"Short walk to Maryland's second-tallest free-falling waterfall — a 17-ft cascade into a swimming hole that's a summer favorite. Tiny mileage, so pair it with the King & Queen Seat for a fuller day.",
+  parking:"Free, but the small lot requires a (free) timed reservation in peak summer — check Maryland DNR before going. Fills fast.",
+  nearby:["King & Queen Seat (main Rocks SP, ~15 min)","Deer Creek tubing","Jarrettsville Creamery"]
+ },
+ {
+  name:"Lake Roland Loop", park:"Lake Roland Park", region:"Central/Western MD",
+  town:"Baltimore", dist:3.5, diff:"Easy",
+  tags:["Kid-friendly","Dog-friendly","Boardwalk","Birding"],
+  q:"Lake Roland Park trail loop Baltimore Maryland",
+  map:"Lake Roland Park 1000 Lakeside Dr Baltimore MD",
+  desc:"An easy, varied loop of boardwalks, woods and lakeshore right inside Baltimore — light-rail accessible, with a nature center and one of the best dog parks around. Great low-key outing.",
+  parking:"Free lots at Lakeside Dr. Nature center, dog park, accessible boardwalk. Can be busy midday.",
+  nearby:["Lake Roland Nature Center & dog park","Mt. Washington Village cafes","Cylburn Arboretum nearby"]
+ },
+ {
+  name:"Patuxent Branch Trail", park:"Howard County / Savage Park", region:"DC Metro / Close-in",
+  town:"Savage", dist:6.0, diff:"Easy",
+  tags:["Kid-friendly","Stroller-OK","Rail-trail","Dog-friendly"],
+  q:"Patuxent Branch Trail Savage to Lake Elkhorn Columbia Maryland",
+  map:"Savage Park 8400 Fair St Savage MD",
+  desc:"A flat, family-perfect rail-trail running from historic Savage Mill up to Lake Elkhorn in Columbia — old railroad truss bridge, river views, mostly paved/boardwalk. Easy to do any length out-and-back; minutes from home.",
+  parking:"Free at Savage Park (and at Lake Elkhorn end). Restrooms, ballfields, playground at Savage Park.",
+  nearby:["Historic Savage Mill (antiques, dining, Bonaparte Breads)","Lake Elkhorn loop in Columbia","Columbia/Laurel restaurants"]
+ },
+ {
+  name:"Centennial Lake Loop", park:"Centennial Park", region:"DC Metro / Close-in",
+  town:"Ellicott City", dist:2.6, diff:"Easy",
+  tags:["Kid-friendly","Stroller-OK","Paved","Lake"],
+  q:"Centennial Park lake loop Ellicott City Columbia Maryland",
+  map:"Centennial Park 10000 Clarksville Pike Ellicott City MD",
+  desc:"The ultimate quick, everyone-can-come loop — a flat, fully paved 2.6-mi circuit around Centennial Lake, 10 minutes from home. Perfect for strollers, bikes, little ones, or a recovery-day walk.",
+  parking:"Free Howard County lots (West, South & East entrances). Playgrounds, boat rentals, restrooms, picnic pavilions.",
+  nearby:["Boat & kayak rentals on the lake","Clarksville/Ellicott City dining","Robinson Nature Center nearby"]
+ },
+ {
+  name:"Wincopin & Quarry Loop", park:"Savage Park / Middle Patuxent", region:"DC Metro / Close-in",
+  town:"Savage", dist:4.0, diff:"Moderate", gem:true,
+  tags:["Hidden gem","River confluence","Dog-friendly","Free"],
+  q:"Wincopin trails Savage Park Patuxent confluence Maryland",
+  map:"Wincopin Trailhead Vollmerhausen Rd Savage MD",
+  desc:"A quieter Howard County network where the Middle and Little Patuxent rivers meet — woodsy single-track, a quarry pond, and river overlooks that most people drive right past. Close to home and rarely crowded.",
+  parking:"Free trailhead off Vollmerhausen Rd (Savage). Limited spaces; minimal signage — grab an offline map.",
+  nearby:["Historic Savage Mill","Patuxent Branch Trail (connects)","Laurel/Columbia dining"]
+ },
+ {
+  name:"Merryman & Glen Ellen Loop (Loch Raven)", park:"Loch Raven Reservoir", region:"Central/Western MD",
+  town:"Phoenix", dist:5.0, diff:"Easy",
+  tags:["Reservoir","Dog-friendly","Free","Quiet"],
+  q:"Loch Raven Reservoir Merryman Trail Glen Ellen loop Maryland",
+  map:"Merryman Trail Parking Dulaney Valley Rd Phoenix MD",
+  desc:"Wide, gentle trails along the wooded shores of Loch Raven Reservoir — easy footing, water views, and a peaceful feel. Closed-road sections are popular for walking on weekends.",
+  parking:"Free pull-off lots along Dulaney Valley Rd (Merryman trailhead). No facilities; popular but spread out.",
+  nearby:["Loch Raven Fishing Center (boat rentals)","Cromwell Valley Park nearby","Towson dining"]
+ },
+
+ // ───── Parks within ~1.5 hr (one representative trail each — tap AllTrails for every trail in the park) ─────
+ {
+  name:"Loggers & Laurel Loop", park:"Oregon Ridge Park", region:"Central/Western MD", town:"Cockeysville", dist:3.5, diff:"Moderate", tags:["Park hub","Dog-friendly","Nature center","Free"],
+  q:"Oregon Ridge Park trails Cockeysville Maryland", map:"Oregon Ridge Park Cockeysville MD",
+  desc:"Wooded ridge-and-valley loops around a former iron-mining area, with a nature center and a summer swimming lake. Several trails to mix and match.",
+  parking:"Free lot at the nature center/lodge. Restrooms, exhibits, picnic areas.",
+  nearby:["Oregon Ridge Nature Center (live animals)","Hunt Valley dining & shops","Concerts at Oregon Ridge in summer"]
+ },
+ {
+  name:"Black Locust & Catoctin Trail Loop", park:"Gambrill State Park", region:"Central/Western MD", town:"Frederick", dist:3.8, diff:"Moderate", tags:["Park hub","Views","Dog-friendly","Overlooks"],
+  q:"Gambrill State Park Black Locust Trail loop Maryland", map:"Gambrill State Park Frederick MD",
+  desc:"Rocky mountain loops on the Catoctin ridge with three stone overlooks built by the CCC — quieter than nearby Catoctin/Cunningham.",
+  parking:"Day-use fee. Lots at the High Knob area & tea room; connects to the Catoctin Trail.",
+  nearby:["Frederick historic downtown (great food scene)","Cunningham Falls & Catoctin (nearby)","Frederick breweries"]
+ },
+ {
+  name:"Little Bennett Loop", park:"Little Bennett Regional Park", region:"DC Metro / Close-in", town:"Clarksburg", dist:5, diff:"Moderate", tags:["Park hub","Dog-friendly","Quiet","Free"],
+  q:"Little Bennett Regional Park trails Clarksburg Maryland", map:"Little Bennett Regional Park Clarksburg MD",
+  desc:"Montgomery County's largest park — 25+ mi of wooded, lightly-used trails along Little Bennett Creek. Build any loop you like.",
+  parking:"Free day-use lots (campground entrance off Clarksburg Rd). Maps at trailheads.",
+  nearby:["Clarksburg Premium Outlets","Black Hill Regional Park nearby","Comus Inn / Sugarloaf area"]
+ },
+ {
+  name:"Little Seneca Lake Shore Trail", park:"Black Hill Regional Park", region:"DC Metro / Close-in", town:"Boyds", dist:4, diff:"Easy", tags:["Park hub","Kid-friendly","Lake","Dog-friendly"],
+  q:"Black Hill Regional Park trails Little Seneca Lake Maryland", map:"Black Hill Regional Park Boyds MD",
+  desc:"Gentle shoreline and woodland trails around Little Seneca Lake, with boat rentals and a visitor center. Easy family miles.",
+  parking:"Free lots; visitor center, boat rentals, restrooms.",
+  nearby:["Boat & kayak rentals on the lake","Little Bennett park nearby","Germantown dining"]
+ },
+ {
+  name:"Perimeter Trail", park:"Greenbelt Park (NPS)", region:"DC Metro / Close-in", town:"Greenbelt", dist:5.3, diff:"Easy", tags:["National Park Service","Dog-friendly","Loop","Free"],
+  q:"Greenbelt Park Perimeter Trail NPS Maryland", map:"Greenbelt Park 6565 Greenbelt Rd Greenbelt MD",
+  desc:"A 5.3-mi wooded loop in a quiet NPS unit minutes inside the Beltway — flat, shaded, and free. Great everyday forest walk.",
+  parking:"Free NPS lots (Sweetgum picnic area trailhead). Campground & restrooms on site.",
+  nearby:["College Park Aviation Museum","NASA Goddard Visitor Center","Hyattsville/College Park eats"]
+ },
+ {
+  name:"Seawall & Star-Fort Walk", park:"Fort McHenry NM (NPS)", region:"Central/Western MD", town:"Baltimore", dist:1.5, diff:"Easy", tags:["National Park Service","Kid-friendly","Waterfront","History"],
+  q:"Fort McHenry National Monument trail seawall Baltimore", map:"Fort McHenry 2400 E Fort Ave Baltimore MD",
+  desc:"Easy paved loop around the historic star fort and Patapsco seawall — birthplace of the Star-Spangled Banner, with big harbor views. Short but very kid- and stroller-friendly.",
+  parking:"NPS lot; entry fee for the fort interior, grounds/seawall free. Visitor center & film.",
+  nearby:["Baltimore Inner Harbor & museums","Locust Point / Federal Hill dining","Latrobe Park"]
+ },
+ {
+  name:"Cromwell Valley Loop", park:"Cromwell Valley Park", region:"Central/Western MD", town:"Parkville", dist:3, diff:"Easy", tags:["Park hub","Kid-friendly","Farm","Dog-friendly"],
+  q:"Cromwell Valley Park trails Parkville Maryland", map:"Cromwell Valley Park 2002 Cromwell Bridge Rd Parkville MD",
+  desc:"Gentle stream-valley and meadow trails on a historic farm at the edge of Loch Raven — easy walking, lime kilns, and a nature center.",
+  parking:"Free lots; nature center, restrooms, seasonal farm activities.",
+  nearby:["Cromwell Valley Nature Center","Loch Raven Reservoir trails","Towson dining"]
+ },
+ {
+  name:"Defense & Powerhouse Trail", park:"North Point State Park", region:"Central/Western MD", town:"Edgemere", dist:3, diff:"Easy", tags:["Park hub","Bay views","Kid-friendly","Wetland"],
+  q:"North Point State Park trails Edgemere Maryland", map:"North Point State Park 8400 North Point Rd Edgemere MD",
+  desc:"Flat shoreline and wetland trails on a Chesapeake peninsula with a historic trolley pier and War of 1812 history.",
+  parking:"Day-use fee (seasonal). Lots, restrooms, fishing pier.",
+  nearby:["Historic trolley pier & beach","Fort Howard Park nearby","Dundalk/Edgemere crab houses"]
+ },
+ {
+  name:"Shoreline & Trails", park:"Sandy Point State Park", region:"Central/Western MD", town:"Annapolis", dist:2, diff:"Easy", tags:["Park hub","Beach","Kid-friendly","Bay Bridge views"],
+  q:"Sandy Point State Park trails Annapolis Maryland", map:"Sandy Point State Park 1100 E College Pkwy Annapolis MD",
+  desc:"Bay beach plus easy shoreline/woodland trails with front-row Chesapeake Bay Bridge views. More beach-day than big hike, great with little kids.",
+  parking:"Day-use fee (higher summer weekends). Beach, restrooms, boat launch. Fills early on hot days.",
+  nearby:["Sandy Point beach & swimming","Historic Annapolis & City Dock","Naval Academy visitor center"]
+ },
+ {
+  name:"Blue Heron & Loop Trails", park:"Quiet Waters Park", region:"Central/Western MD", town:"Annapolis", dist:3.5, diff:"Easy", tags:["Park hub","Stroller-OK","Paved","Dog-friendly"],
+  q:"Quiet Waters Park trails Annapolis Maryland", map:"Quiet Waters Park 600 Quiet Waters Park Rd Annapolis MD",
+  desc:"Paved, rolling loops through woods and gardens along the South River — dog beach, playgrounds, ice cream. Easy, polished family park.",
+  parking:"Small entry fee. Visitor center, cafe, restrooms, dog park & dog beach.",
+  nearby:["Quiet Waters dog beach & cafe","Downtown Annapolis (10 min)","Edgewater/South River dining"]
+ },
+ {
+  name:"Jug Bay Wetlands Trails", park:"Patuxent River Park (Jug Bay)", region:"DC Metro / Close-in", town:"Upper Marlboro", dist:4, diff:"Easy", tags:["Park hub","Birding","Boardwalk","Kid-friendly"],
+  q:"Patuxent River Park Jug Bay trails Upper Marlboro Maryland", map:"Patuxent River Park 16000 Croom Airport Rd Upper Marlboro MD",
+  desc:"Quiet wetland boardwalks and woodland paths along the tidal Patuxent — superb birding and a real escape feel. Some areas need a (free) permit/registration.",
+  parking:"Free, but the park gate requires advance registration/permit for some areas — check Prince George's Parks before going.",
+  nearby:["Merkle Wildlife Sanctuary (nearby)","Patuxent Rural Life Museums","Upper Marlboro eats"]
+ },
+ {
+  name:"Heritage & Swamp Trail", park:"Cedarville State Forest", region:"DC Metro / Close-in", town:"Brandywine", dist:4, diff:"Easy", tags:["Park hub","Quiet","Dog-friendly","Forest"],
+  q:"Cedarville State Forest trails Brandywine Maryland", map:"Cedarville State Forest 10201 Bee Oak Rd Brandywine MD",
+  desc:"Flat, peaceful pine-and-hardwood loops around the headwaters of a cypress swamp — rarely crowded southern-MD forest.",
+  parking:"Small day-use fee. Lots, restrooms, pond. Maps at the office.",
+  nearby:["Cedarville pond fishing","Brandywine/Waldorf dining","Patuxent River park nearby"]
+ },
+ {
+  name:"Brooks Hill & Gambrill Mill Trails", park:"Monocacy National Battlefield (NPS)", region:"Central/Western MD", town:"Frederick", dist:3.5, diff:"Easy", tags:["National Park Service","History","Kid-friendly","Free"],
+  q:"Monocacy National Battlefield trails Frederick Maryland", map:"Monocacy National Battlefield 5201 Urbana Pike Frederick MD",
+  desc:"Gentle interpretive loops across the 'battle that saved Washington' — fields, river, and an overlook. Easy and educational.",
+  parking:"Free NPS lots at the visitor center & trailheads. Excellent free museum.",
+  nearby:["Frederick historic downtown","Gambrill State Park nearby","Frederick breweries & food"]
+ },
+ {
+  name:"Final Attack & Union Advance Trails", park:"Antietam National Battlefield (NPS)", region:"Central/Western MD", town:"Sharpsburg", dist:4, diff:"Easy", tags:["National Park Service","History","Views","Dog-friendly"],
+  q:"Antietam National Battlefield trails Sharpsburg Maryland", map:"Antietam National Battlefield 5831 Dunker Church Rd Sharpsburg MD",
+  desc:"Walking trails across rolling farm fields of the famous Civil War battlefield, with the Burnside Bridge and sweeping views. Moving and easy underfoot.",
+  parking:"NPS entrance fee. Visitor center, lots at multiple tour stops.",
+  nearby:["Burnside Bridge & Bloody Lane","Historic Sharpsburg & Shepherdstown, WV","C&O Canal at Antietam Aqueduct"]
+ },
+ {
+  name:"Northwest Branch Gorge Trail", park:"Northwest Branch Trail (M-NCPPC)", region:"DC Metro / Close-in", town:"Silver Spring", dist:4, diff:"Moderate", tags:["Hidden gem","Boulders","Dog-friendly","Free"],
+  q:"Northwest Branch Trail Burnt Mills gorge Silver Spring Maryland", map:"Northwest Branch Trail Burnt Mills 10810 Columbia Pike Silver Spring MD",
+  desc:"A surprisingly rugged, rocky stream gorge inside the Beltway — boulder-hopping along the Northwest Branch below Burnt Mills. A local favorite that few outside the area know.",
+  parking:"Free lot at Burnt Mills (Columbia Pike/Rt 29). Trail can be rooty/rocky and muddy after rain.",
+  nearby:["Wheaton Regional Park & Brookside Gardens","Silver Spring downtown dining","Burnt Mills historic dam"]
+ },
+ {
+  name:"Cabin John Stream Valley Trail", park:"Cabin John Regional Park", region:"DC Metro / Close-in", town:"Bethesda", dist:4, diff:"Easy", tags:["Park hub","Kid-friendly","Train","Dog-friendly"],
+  q:"Cabin John Regional Park stream valley trail Bethesda Maryland", map:"Cabin John Regional Park 7400 Tuckerman Ln Bethesda MD",
+  desc:"Shady stream-valley trail with a beloved miniature train, playground and nature center — easy mileage plus a full kids' day.",
+  parking:"Free lots; train, playground, nature center, restrooms.",
+  nearby:["Cabin John miniature train & playground","Bethesda/Rockville dining","Locust Grove Nature Center"]
+ },
+ {
+  name:"Vista & Stream Trails", park:"Hashawha / Bear Branch", region:"Central/Western MD", town:"Westminster", dist:3, diff:"Easy", tags:["Park hub","Kid-friendly","Nature center","Free"],
+  q:"Hashawha Environmental Center Bear Branch trails Westminster Maryland", map:"Hashawha Environmental Center 300 John Owings Rd Westminster MD",
+  desc:"Meadow, lake and woodland loops at a Carroll County nature center — gentle, well-marked, and quiet. Nice low-key family outing.",
+  parking:"Free lots; nature center, raptor enclosures, restrooms.",
+  nearby:["Bear Branch Nature Center","Historic Westminster Main St","Union Mills Homestead"]
+ },
+ {
+  name:"Island Loop & Swamp Trail", park:"Theodore Roosevelt Island (NPS)", region:"DC Metro / Close-in", town:"Arlington, VA", dist:1.8, diff:"Easy", tags:["National Park Service","Kid-friendly","Boardwalk","Free"],
+  q:"Theodore Roosevelt Island trails NPS Washington DC", map:"Theodore Roosevelt Island George Washington Memorial Pkwy Arlington VA",
+  desc:"A wild wooded island in the Potomac, all to itself — easy dirt paths and a tidal-marsh boardwalk circle a grand TR memorial plaza. A genuine surprise so close to DC.",
+  parking:"Free NPS lot off the GW Pkwy (northbound access only). No bikes on island trails; cross the footbridge.",
+  nearby:["Georgetown waterfront (across the river)","Rosslyn dining","Mt. Vernon Trail along the Potomac"]
+ },
+ {
+  name:"River & Marsh Boardwalk", park:"Kenilworth Park & Aquatic Gardens (NPS)", region:"DC Metro / Close-in", town:"Washington, DC", dist:1.5, diff:"Easy", tags:["National Park Service","Kid-friendly","Waterlilies","Free"],
+  q:"Kenilworth Aquatic Gardens trails NPS Washington DC", map:"Kenilworth Aquatic Gardens 1550 Anacostia Ave NE Washington DC",
+  desc:"Flat boardwalks and river paths through the only NPS site devoted to water gardens — lotus and waterlilies bloom in summer. Short, easy, magical with kids.",
+  parking:"Free NPS lot. Visitor center, restrooms. Best blooms July; mornings are coolest.",
+  nearby:["Anacostia Riverwalk Trail","National Arboretum (nearby)","H Street NE dining"]
+ },
+ {
+  name:"Bay View & Wilson Spring Loop", park:"Mason Neck State Park", region:"Northern Virginia", town:"Lorton", dist:3, diff:"Easy", tags:["Park hub","Bald eagles","Kid-friendly","Bay views"],
+  q:"Mason Neck State Park trails Lorton Virginia", map:"Mason Neck State Park 7301 High Point Rd Lorton VA",
+  desc:"Easy woodland and marsh trails on a Potomac peninsula known for bald eagles and a quiet bay — pair with a paddle. Gentle and scenic.",
+  parking:"VA state-park fee. Visitor center, kayak rentals, restrooms.",
+  nearby:["Elizabeth Hartwell NWR (adjacent)","Pohick Bay Regional Park","Occoquan historic town dining"]
+ },
+ {
+  name:"Potomac & Bushey Point Trails", park:"Leesylvania State Park", region:"Northern Virginia", town:"Woodbridge", dist:3, diff:"Easy", tags:["Park hub","River","Kid-friendly","History"],
+  q:"Leesylvania State Park trails Woodbridge Virginia", map:"Leesylvania State Park 2001 Daniel K Ludwig Dr Woodbridge VA",
+  desc:"Flat shoreline and a short ridge trail on the Potomac with historic Lee-family and Civil War sites, a fishing pier and beach.",
+  parking:"VA state-park fee. Boat launch, pier, visitor center, restrooms.",
+  nearby:["Potomac fishing pier & beach","Occoquan riverfront town","Prince William Forest nearby"]
+ },
+ {
+  name:"First & Second Manassas Loops", park:"Manassas National Battlefield (NPS)", region:"Northern Virginia", town:"Manassas", dist:5.4, diff:"Moderate", tags:["National Park Service","History","Open fields","Dog-friendly"],
+  q:"Manassas National Battlefield trails Virginia", map:"Manassas National Battlefield 6511 Sudley Rd Manassas VA",
+  desc:"Open-field and woodland loops across the Bull Run battlefield (Henry Hill & the longer Second Manassas trail) — history, meadows, and easy navigation.",
+  parking:"Free NPS lots (Henry Hill VC & Stone Bridge). Visitor center, film, museum.",
+  nearby:["Henry Hill Visitor Center","Historic Manassas downtown & rail depot","Bull Run Regional Park"]
+ },
+ {
+  name:"Wetland Boardwalk Loop", park:"Huntley Meadows Park", region:"Northern Virginia", town:"Alexandria", dist:3, diff:"Easy", tags:["Park hub","Birding","Boardwalk","Kid-friendly"],
+  q:"Huntley Meadows Park boardwalk trail Alexandria Virginia", map:"Huntley Meadows Park 3701 Lockheed Blvd Alexandria VA",
+  desc:"A flat boardwalk over a freshwater marsh teeming with herons, beavers and turtles — Fairfax County's best easy wildlife walk. Stroller-friendly.",
+  parking:"Free Fairfax County lot at Lockheed Blvd. Visitor center, restrooms.",
+  nearby:["Old Town Alexandria waterfront","Mount Vernon estate (nearby)","Kingstowne/Alexandria dining"]
+ },
+ {
+  name:"Lake Accotink Loop", park:"Lake Accotink Park", region:"Northern Virginia", town:"Springfield", dist:4, diff:"Easy", tags:["Park hub","Stroller-OK","Lake","Dog-friendly"],
+  q:"Lake Accotink Park loop trail Springfield Virginia", map:"Lake Accotink Park 7500 Accotink Park Rd Springfield VA",
+  desc:"Mostly-flat loop around a lake with a carousel, mini-golf and boat rentals — easy, busy-in-a-good-way family park near the Beltway.",
+  parking:"Free lots; marina, carousel, snack bar, restrooms.",
+  nearby:["Lake Accotink carousel & boat rentals","Springfield Town Center dining","Cross County Trail connections"]
+ },
+ {
+  name:"Bull Run-Occoquan (Fountainhead)", park:"Fountainhead Regional Park", region:"Northern Virginia", town:"Fairfax Station", dist:5, diff:"Moderate", tags:["Park hub","River","Dog-friendly","Mountain bikes"],
+  q:"Fountainhead Regional Park trails Bull Run Occoquan Virginia", map:"Fountainhead Regional Park 10875 Hampton Rd Fairfax Station VA",
+  desc:"Hilly, wooded trail along the Occoquan Reservoir (south end of the Bull Run-Occoquan Trail), plus a marina. Good for a rolling 4–6 mi.",
+  parking:"Free park lots (seasonal hours); marina, boat rentals, restrooms.",
+  nearby:["Occoquan Reservoir boat rentals","Historic Occoquan town","Sandy Run Regional Park (rowing)"]
+ },
+ {
+  name:"Potomac Heritage & Sugarland Run", park:"Algonkian Regional Park", region:"Northern Virginia", town:"Sterling", dist:4, diff:"Easy", tags:["Park hub","River","Kid-friendly","Dog-friendly"],
+  q:"Algonkian Regional Park trails Potomac Heritage Sterling Virginia", map:"Algonkian Regional Park 47001 Fairway Dr Sterling VA",
+  desc:"Easy riverside trails along the Potomac (part of the Potomac Heritage NST) with a water park, golf and cabins. Flat and family-easy.",
+  parking:"Free lots; seasonal water park, boat launch, restrooms.",
+  nearby:["Volcano Island water park (summer)","Great Falls Park (upstream)","Sterling/Leesburg dining"]
+ },
+ {
+  name:"Balls Bluff Battlefield Loop", park:"Balls Bluff Battlefield Regional Park", region:"Northern Virginia", town:"Leesburg", dist:2.5, diff:"Easy", tags:["History","Dog-friendly","Bluff views","Free"],
+  q:"Balls Bluff Battlefield trails Leesburg Virginia", map:"Balls Bluff Battlefield Regional Park Leesburg VA",
+  desc:"Short, easy interpretive loops on a wooded bluff over the Potomac — site of an early Civil War battle and one of the smallest national cemeteries. Quiet and quick.",
+  parking:"Free gravel lot at the end of Ball's Bluff Rd. Interpretive signs; no facilities.",
+  nearby:["Historic downtown Leesburg","Loudoun wineries & breweries","Morven Park & White's Ferry area"]
+ },
+ {
+  name:"Difficult Run Falls Trail", park:"Great Falls Park (NPS, VA)", region:"Northern Virginia", town:"Great Falls", dist:2.5, diff:"Easy", tags:["Waterfall","Kid-friendly","Dog-friendly","Creek"],
+  q:"Difficult Run Trail falls Great Falls Virginia", map:"Difficult Run Trailhead Georgetown Pike Great Falls VA",
+  desc:"Short, shady walk along Difficult Run to a series of cascades tumbling toward the Potomac — easy enough for little ones with a pretty payoff.",
+  parking:"Free NPS gravel lot at the Difficult Run trailhead on Georgetown Pike (Rt 193) — no fee here, unlike the main Great Falls entrance.",
+  nearby:["Great Falls Park overlooks","Great Falls Village dining","Riverbend Park nearby"]
+ },
+
+ // ───── Dams & reservoir walks ─────
+ {
+  name:"Liberty Dam Trail", park:"Liberty Reservoir", region:"Central/Western MD", town:"Marriottsville", dist:3.6, diff:"Easy", tags:["Dam","Reservoir","Dog-friendly","Paved"],
+  q:"Liberty Dam Trail Liberty Reservoir Maryland", map:"Liberty Dam Trail Marriottsville Rd Marriottsville MD",
+  desc:"A flat, paved 1.8-mi-each-way walk out to the big Liberty Dam and reservoir overlook — easy, scenic, and 25 minutes from home. The dam top itself is fenced, but the views are great. Miles of side trails branch off if you want more.",
+  parking:"Free, but parking at the Liberty Dam Rd gate is very limited and no street parking on Marriottsville Rd — arrive early. Watershed (DPW) land; stay on roads/trails.",
+  nearby:["McKeldin Area, Patapsco (nearby)","Sykesville & Eldersburg dining","Piney Run Park nearby"]
+ },
+ {
+  name:"Prettyboy Reservoir — Hemlock Trail", park:"Prettyboy Reservoir", region:"Central/Western MD", town:"Hampstead", dist:4.0, diff:"Moderate", tags:["Dam","Reservoir","Dog-friendly","Free"],
+  q:"Prettyboy Reservoir Hemlock Trail dam Maryland", map:"Prettyboy Reservoir Dam Gunpowder Rd Hampstead MD",
+  desc:"Quiet woods and water on the shores of Prettyboy Reservoir, with the historic 1933 dam and the well-loved Hemlock Trail. Peaceful, lightly used, and good for a rolling few miles.",
+  parking:"Free roadside parking along Gunpowder Rd near the dam. No facilities; trails can be rugged/unmarked in spots.",
+  nearby:["Gunpowder Falls (Hereford area) nearby","Prettyboy Dam overlook","Hampstead/Manchester eats"]
+ },
+ {
+  name:"Brighton Dam & Triadelphia Reservoir Trail", park:"Triadelphia Reservoir (WSSC)", region:"Central/Western MD", town:"Brookeville", dist:5.0, diff:"Moderate", tags:["Dam","Reservoir","Azalea garden","Dog-friendly"],
+  q:"Brighton Dam Triadelphia Reservoir trail Maryland", map:"Brighton Dam 2 Brighton Dam Rd Brookeville MD",
+  desc:"Walk across Brighton Dam and into the woods along the 800-acre Triadelphia Reservoir — a famous winter bald-eagle spot, with an azalea garden by the dam that blooms in spring. Do a 4–5 mi stretch of the longer reservoir trail.",
+  parking:"Free at the Brighton Dam Information Center / azalea garden. A WSSC Watershed Use Permit ($6/day–$70/yr) is required to use the hiking trails — buy online before you go.",
+  nearby:["Brighton Dam Azalea Garden (spring)","Rocky Gorge Reservoir nearby","Olney & Clarksville dining"]
+ },
+ {
+  name:"Rocky Gorge Reservoir (Scott's Cove)", park:"Rocky Gorge / Duckett Dam (WSSC)", region:"DC Metro / Close-in", town:"Laurel", dist:4.0, diff:"Easy", tags:["Dam","Reservoir","Quiet","Dog-friendly"],
+  q:"Rocky Gorge Reservoir Duckett Dam Supplee Lane trail Maryland", map:"Rocky Gorge Reservoir Supplee Lane Laurel MD",
+  desc:"Shaded shoreline trails along the Rocky Gorge Reservoir (behind T. Howard Duckett Dam) on the Patuxent — easy, peaceful water-side miles close to home.",
+  parking:"Free at the Scott's Cove / Supplee Ln recreation area. WSSC Watershed Use Permit required for trail use — buy online first.",
+  nearby:["Brighton Dam & azalea garden nearby","Savage Mill (historic, dining)","Laurel Main St eateries"]
+ },
+ {
+  name:"Conowingo Dam — Fisherman's Park", park:"Lower Susquehanna Heritage Greenway", region:"Central/Western MD", town:"Darlington", dist:3.5, diff:"Easy", tags:["Dam","Bald eagles","Kid-friendly","River"],
+  q:"Conowingo Dam Fishermans Park trail bald eagles Maryland", map:"Fishermans Park Conowingo Dam Shuresville Rd Darlington MD",
+  desc:"Stroll the riverbank below the massive Conowingo Dam — November–March it's one of the East Coast's best bald-eagle viewing spots, with herons and gulls year-round. Flat, easy, and a hit with kids (bring binoculars).",
+  parking:"Free lot at Fisherman's Park just south of the dam (US-1). Restrooms seasonally; busy with photographers in winter.",
+  nearby:["Susquehanna State Park (nearby)","Havre de Grace waterfront","Darlington/Conowingo country stores"]
+ },
+
+ // ───── More mill-ruin / dam river walks (like Daniels) ─────
+ {
+  name:"Grist Mill Trail — Swinging Bridge & Bloede Dam Site", park:"Patapsco Valley SP — Avalon/Orange Grove", region:"Central/Western MD", town:"Halethorpe", dist:4.5, diff:"Easy", gem:true, tags:["Dam","Ruins","Stroller-OK","Kid-friendly"],
+  q:"Grist Mill Trail Avalon Orange Grove swinging bridge Bloede Dam Patapsco", map:"Avalon Area Patapsco Valley State Park 5102 South St Halethorpe MD",
+  desc:"Very much like Daniels: a flat, paved riverside trail past the Orange Grove Flour Mill ruins, a classic swinging suspension bridge, and the site of the former Bloede Dam (removed in 2018 to restore the river). Easy 4–5 mi out-and-back, stroller- and kid-friendly.",
+  parking:"Day-use service charge at the Avalon entrance (~$3–5). Big lots, restrooms; connects to the Avalon/Orange Grove trail network for more miles.",
+  nearby:["Cascade Falls loop (same park area)","Thomas Viaduct (historic railroad arch)","Historic Ellicott City & Catonsville dining"]
+ },
+ {
+  name:"Trolley Line #9 & Patapsco River Walk (Oella)", park:"Patapsco Valley / Trolley Trail", region:"Central/Western MD", town:"Ellicott City", dist:3.5, diff:"Easy", gem:true, tags:["Ruins","Stroller-OK","River","Kid-friendly"],
+  q:"Trolley Line 9 Trail Oella Ellicott City Patapsco river walk", map:"Trolley Trail Oella Ave Ellicott City MD",
+  desc:"Right next door to home: the paved Trolley Line #9 Trail runs along the Patapsco from historic Ellicott City through the old Oella mill town, with river views and mill-era stonework. Flat and easy — perfect for a quick few miles or a stroller stroll.",
+  parking:"Free street/lot parking near Oella Ave & the Frederick Rd bridge in Ellicott City. Pair with Main St afterward.",
+  nearby:["Historic Ellicott City Main St (shops, ice cream)","B&O Railroad Museum (Ellicott City station)","Breweries in Ellicott City/Catonsville"]
+ },
+ {
+  name:"Jerusalem Mill & Jericho Covered Bridge Loop", park:"Gunpowder Falls SP — Jerusalem Village", region:"Central/Western MD", town:"Kingsville", dist:4.8, diff:"Easy", tags:["Ruins","Covered bridge","Kid-friendly","River"],
+  q:"Jerusalem Mill Village Jericho Covered Bridge Little Gunpowder loop", map:"Jerusalem Mill Village 2813 Jerusalem Rd Kingsville MD",
+  desc:"A restored 1700s mill village with a working blacksmith, the photogenic Jericho Covered Bridge, and easy riverside loops along the Little Gunpowder. History plus gentle miles and summer river wading — a big family hit.",
+  parking:"Free lots at Jerusalem Mill Village. Visitor center, restrooms, museum. Busy on event weekends.",
+  nearby:["Jerusalem Mill museum & blacksmith","Jericho Covered Bridge","Kingsville/Perry Hall dining"]
+ },
+ {
+  name:"Crimea Estate & Gwynns Falls (Leakin Park)", park:"Gwynns Falls / Leakin Park", region:"Central/Western MD", town:"Baltimore", dist:4.0, diff:"Moderate", gem:true, tags:["Ruins","Dog-friendly","Free","Stream"],
+  q:"Leakin Park Gwynns Falls Crimea Estate Winans Meadow trail Baltimore", map:"Winans Meadow Trailhead 4500 Franklintown Rd Baltimore MD",
+  desc:"One of the largest urban woodland parks in the country, hiding the 19th-century Crimea Estate with a preserved waterwheel, mansion and root cellar along Gwynns Falls. Surprisingly wild stream-valley trails with mill-era ruins.",
+  parking:"Free at Winans Meadow (Franklintown Rd) and Eagle Dr lots. Wooded/quiet — go in a group and during daytime.",
+  nearby:["Crimea Estate / Orianda House","Gwynns Falls Trail (paved, longer)","Catonsville & SW Baltimore dining"]
+ },
+
+ // ───── Family camping destination ─────
+ {
+  name:"Turkey Point Lighthouse Trail", park:"Elk Neck State Park", region:"Central/Western MD", town:"North East", dist:2.4, diff:"Easy", tags:["Camping","Kid-friendly","Lighthouse","Bay views"],
+  q:"Elk Neck State Park Turkey Point Lighthouse trail Maryland", map:"Elk Neck State Park North East MD",
+  desc:"Easy walk through woods and meadow to the Turkey Point Lighthouse on a bluff where the Chesapeake meets the Elk River — big water views and a wonderful weekend-camping base. The park has more short trails plus a swimming beach.",
+  parking:"MD state-park day-use fee. Lots at the lighthouse trailhead and North East Beach; campground is a separate reserved area.",
+  nearby:["Elk Neck campground, cabins & beach (reserve via MD DNR)","Historic North East town & Chesapeake outlets","Plumpton Park Zoo nearby"]
+ }
+];
+
+// Exact trailhead / parking addresses (use these to navigate; map centers here)
+const ADDR = {
+ "Grist Mill Trail — Swinging Bridge & Bloede Dam Site":"Avalon Area, Patapsco Valley SP, 5102 South St, Halethorpe, MD 21227",
+ "Trolley Line #9 & Patapsco River Walk (Oella)":"Trolley Trail, Oella Ave, Ellicott City, MD 21043",
+ "Jerusalem Mill & Jericho Covered Bridge Loop":"Jerusalem Mill Village, 2813 Jerusalem Rd, Kingsville, MD 21087",
+ "Crimea Estate & Gwynns Falls (Leakin Park)":"Winans Meadow Trailhead, 4500 Franklintown Rd, Baltimore, MD 21229",
+ "Turkey Point Lighthouse Trail":"Elk Neck State Park, 4395 Turkey Point Rd, North East, MD 21901",
+ "Liberty Dam Trail":"Liberty Dam Trail, Marriottsville Rd, Marriottsville, MD 21104",
+ "Prettyboy Reservoir — Hemlock Trail":"Prettyboy Reservoir Dam, Gunpowder Rd, Hampstead, MD 21074",
+ "Brighton Dam & Triadelphia Reservoir Trail":"Brighton Dam, 2 Brighton Dam Rd, Brookeville, MD 20833",
+ "Rocky Gorge Reservoir (Scott's Cove)":"Rocky Gorge Reservoir, Supplee Ln, Laurel, MD 20723",
+ "Conowingo Dam — Fisherman's Park":"Fisherman's Park, Shuresville Rd, Darlington, MD 21034",
+ "Loggers & Laurel Loop":"Oregon Ridge Park, 13401 Beaver Dam Rd, Cockeysville, MD 21030",
+ "Black Locust & Catoctin Trail Loop":"Gambrill State Park, 8602 Gambrill Park Rd, Frederick, MD 21702",
+ "Little Bennett Loop":"Little Bennett Regional Park, 23701 Frederick Rd, Clarksburg, MD 20871",
+ "Little Seneca Lake Shore Trail":"Black Hill Regional Park, 20930 Lake Ridge Dr, Boyds, MD 20841",
+ "Perimeter Trail":"Greenbelt Park, 6565 Greenbelt Rd, Greenbelt, MD 20770",
+ "Seawall & Star-Fort Walk":"Fort McHenry NM, 2400 E Fort Ave, Baltimore, MD 21230",
+ "Cromwell Valley Loop":"Cromwell Valley Park, 2002 Cromwell Bridge Rd, Parkville, MD 21234",
+ "Defense & Powerhouse Trail":"North Point State Park, 8400 North Point Rd, Edgemere, MD 21219",
+ "Shoreline & Trails":"Sandy Point State Park, 1100 E College Pkwy, Annapolis, MD 21409",
+ "Blue Heron & Loop Trails":"Quiet Waters Park, 600 Quiet Waters Park Rd, Annapolis, MD 21403",
+ "Jug Bay Wetlands Trails":"Patuxent River Park, 16000 Croom Airport Rd, Upper Marlboro, MD 20772",
+ "Heritage & Swamp Trail":"Cedarville State Forest, 10201 Bee Oak Rd, Brandywine, MD 20613",
+ "Brooks Hill & Gambrill Mill Trails":"Monocacy National Battlefield, 5201 Urbana Pike, Frederick, MD 21704",
+ "Final Attack & Union Advance Trails":"Antietam National Battlefield, 5831 Dunker Church Rd, Sharpsburg, MD 21782",
+ "Northwest Branch Gorge Trail":"Burnt Mills, 10810 Columbia Pike, Silver Spring, MD 20901",
+ "Cabin John Stream Valley Trail":"Cabin John Regional Park, 7400 Tuckerman Ln, Bethesda, MD 20817",
+ "Vista & Stream Trails":"Hashawha Environmental Center, 300 John Owings Rd, Westminster, MD 21158",
+ "Island Loop & Swamp Trail":"Theodore Roosevelt Island, George Washington Memorial Pkwy, Arlington, VA 22209",
+ "River & Marsh Boardwalk":"Kenilworth Aquatic Gardens, 1550 Anacostia Ave NE, Washington, DC 20019",
+ "Bay View & Wilson Spring Loop":"Mason Neck State Park, 7301 High Point Rd, Lorton, VA 22079",
+ "Potomac & Bushey Point Trails":"Leesylvania State Park, 2001 Daniel K Ludwig Dr, Woodbridge, VA 22191",
+ "First & Second Manassas Loops":"Manassas National Battlefield, 6511 Sudley Rd, Manassas, VA 20109",
+ "Wetland Boardwalk Loop":"Huntley Meadows Park, 3701 Lockheed Blvd, Alexandria, VA 22306",
+ "Lake Accotink Loop":"Lake Accotink Park, 7500 Accotink Park Rd, Springfield, VA 22150",
+ "Bull Run-Occoquan (Fountainhead)":"Fountainhead Regional Park, 10875 Hampton Rd, Fairfax Station, VA 22039",
+ "Potomac Heritage & Sugarland Run":"Algonkian Regional Park, 47001 Fairway Dr, Sterling, VA 20165",
+ "Balls Bluff Battlefield Loop":"Balls Bluff Battlefield Regional Park, Balls Bluff Rd NE, Leesburg, VA 20176",
+ "Difficult Run Falls Trail":"Difficult Run Trailhead, 9700 Georgetown Pike, Great Falls, VA 22066",
+ "Cascade Falls Loop":"Orange Grove Area, 5120 South St, Halethorpe, MD 21227",
+ "Sugarloaf Mountain — Northern Peaks / A.M. Thomas Loop":"East View Parking, 7901 Comus Rd, Dickerson, MD 20842",
+ "Wolf Rock & Chimney Rock Loop":"Catoctin Mountain Park Visitor Center, 6602 Foxville Rd, Thurmont, MD 21788",
+ "Cunningham Falls — Cliff & Lower Trail":"William Houck Area, 14274 William Houck Dr, Thurmont, MD 21788",
+ "King & Queen Seat — Rocks State Park":"Rocks State Park, 3318 Rocks Chrome Hill Rd, Jarrettsville, MD 21084",
+ "Annapolis Rock via Appalachian Trail":"AT Parking Lot, US-40, Myersville, MD 21773",
+ "Sweet Air Loop":"Sweet Air Area, Moores Rd, Baldwin, MD 21013",
+ "Billy Goat Trail A + Towpath Loop":"Great Falls Tavern Visitor Center, 11710 MacArthur Blvd, Potomac, MD 20854",
+ "Great Falls MD — Overlook & Gold Mine Loop":"Great Falls Tavern Visitor Center, 11710 MacArthur Blvd, Potomac, MD 20854",
+ "Western Ridge & Valley Trail Loop":"Rock Creek Park Nature Center, 5200 Glover Rd NW, Washington, DC 20015",
+ "Scott's Run Nature Preserve Loop":"Scott's Run Nature Preserve, 7400 Georgetown Pike, McLean, VA 22102",
+ "River Trail & Ridge Loop":"Great Falls Park, 9200 Old Dominion Dr, McLean, VA 22102",
+ "Bull Run–Occoquan Trail (Bull Run Marina)":"Bull Run Marina, 12619 Old Yates Ford Rd, Clifton, VA 20124",
+ "South Valley & Laurel Loop":"Prince William Forest Park VC, 18170 Park Entrance Rd, Triangle, VA 22172",
+ "Burke Lake Loop":"Burke Lake Park, 7315 Ox Rd, Fairfax Station, VA 22039",
+ "Whiteoak Canyon Lower Falls":"Whiteoak Canyon Lower Lot, Weakley Hollow Rd, Syria, VA 22743",
+ "Hawksbill Summit Loop":"Hawksbill Gap, Skyline Dr Milepost 45.6, Shenandoah NP, Luray, VA 22835",
+ "Bears Den to Raven Rocks (AT)":"Bears Den Trail Center, 18393 Blue Ridge Mountain Rd, Bluemont, VA 20135",
+ "Maryland Heights Overlook Loop":"Harpers Ferry NHP Visitor Center, 171 Shoreline Dr, Harpers Ferry, WV 25425",
+ "Loudoun Heights Loop (AT)":"Harpers Ferry NHP Visitor Center, 171 Shoreline Dr, Harpers Ferry, WV 25425",
+ "Lindy Point & Elakala Falls":"Blackwater Falls State Park, 1584 Blackwater Lodge Rd, Davis, WV 26260",
+ "McKeldin Rapids & Switchback Loop":"McKeldin Area, 11676 Marriottsville Rd, Marriottsville, MD 21104",
+ "Serpentine & Choate Mine Trail":"Soldiers Delight NEA, 5100 Deer Park Rd, Owings Mills, MD 21117",
+ "Goose Creek & Cathedral Loop":"Banshee Reeks Nature Preserve, 21085 The Woods Rd, Leesburg, VA 20175",
+ "North Ridge & Ambassador Whitehouse Loop":"Sky Meadows State Park, 11012 Edmonds Ln, Delaplane, VA 20144",
+ "Manassas Gap & Trillium Trail (AT)":"G.R. Thompson WMA (Ted Lake lot), Freezeland Rd, Linden, VA 22642",
+ "Riverbend to Great Falls (Potomac Heritage)":"Riverbend Park, 8700 Potomac Hills St, Great Falls, VA 22066",
+ "Torrey C. Brown (NCR) Rail Trail — Monkton stretch":"Monkton Station, 1820 Monkton Rd, Monkton, MD 21111",
+ "Cosca / Patuxent woodland loops":"Patuxent Research Refuge — National Wildlife Visitor Center, 10901 Scarlet Tanager Loop, Laurel, MD 20708",
+ "Rachel Carson Conservation Park (social trails)":"Rachel Carson Conservation Park, 22201 Zion Rd, Brookeville, MD 20833",
+ "Patuxent River SP — Hipsley Mill social trails":"Hipsley Mill Rd lot, Woodbine, MD 21797",
+ "Rock Run & Land of Promise Loop":"Rock Run Grist Mill, 4122 Wilkinson Rd, Havre de Grace, MD 21078",
+ "Big Red Trail Loop":"Greenbrier State Park, 21843 National Pike, Boonsboro, MD 21713",
+ "Washington Monument via Bartman Hill (AT)":"Washington Monument State Park, 6620 Zittlestown Rd, Middletown, MD 21769",
+ "Lake Shore Trail Loop":"Seneca Creek State Park, 11950 Clopper Rd, Gaithersburg, MD 20878",
+ "Red Trail to the Beach (Fossil Hunt)":"Calvert Cliffs State Park, 10540 H G Trueman Rd, Lusby, MD 20657",
+ "Canyon Loop — Muddy Creek Falls":"Swallow Falls State Park, 2470 Maple Glade Rd, Oakland, MD 21550",
+ "Gunpowder South & Highland Loop (Hereford)":"Hereford Area, Bunker Hill Rd, Parkton, MD 21120",
+ "Daniels Dam & Alberton River Trail":"Patapsco Valley SP — Daniels Area, Daniels Rd, Ellicott City, MD 21043",
+ "Kilgore Falls (Falling Branch)":"Falling Branch Area, 1026 Falling Branch Rd, Pylesville, MD 21132",
+ "Lake Roland Loop":"Lake Roland Park, 1000 Lakeside Dr, Baltimore, MD 21210",
+ "Patuxent Branch Trail":"Savage Park, 8400 Fair St, Savage, MD 20763",
+ "Centennial Lake Loop":"Centennial Park, 10000 Clarksville Pike, Ellicott City, MD 21042",
+ "Wincopin & Quarry Loop":"Wincopin Trailhead, Vollmerhausen Rd, Savage, MD 20763",
+ "Merryman & Glen Ellen Loop (Loch Raven)":"Merryman Trail Parking, Dulaney Valley Rd, Phoenix, MD 21131"
+};
+
+// Home base for directions + approximate drive times (no traffic; tap a card's link for live time)
+const HOME = "4751 Ilkley Moor Ln, Ellicott City, MD 21043";
+const DRIVE = {
+ "Grist Mill Trail — Swinging Bridge & Bloede Dam Site":20,"Trolley Line #9 & Patapsco River Walk (Oella)":10,
+ "Jerusalem Mill & Jericho Covered Bridge Loop":40,"Crimea Estate & Gwynns Falls (Leakin Park)":30,"Turkey Point Lighthouse Trail":70,
+ "Liberty Dam Trail":25,"Prettyboy Reservoir — Hemlock Trail":50,"Brighton Dam & Triadelphia Reservoir Trail":25,
+ "Rocky Gorge Reservoir (Scott's Cove)":25,"Conowingo Dam — Fisherman's Park":60,
+ "Loggers & Laurel Loop":40,
+ "Black Locust & Catoctin Trail Loop":60,
+ "Little Bennett Loop":45,
+ "Little Seneca Lake Shore Trail":50,
+ "Perimeter Trail":40,
+ "Seawall & Star-Fort Walk":35,
+ "Cromwell Valley Loop":40,
+ "Defense & Powerhouse Trail":50,
+ "Shoreline & Trails":50,
+ "Blue Heron & Loop Trails":50,
+ "Jug Bay Wetlands Trails":60,
+ "Heritage & Swamp Trail":70,
+ "Brooks Hill & Gambrill Mill Trails":50,
+ "Final Attack & Union Advance Trails":70,
+ "Northwest Branch Gorge Trail":45,
+ "Cabin John Stream Valley Trail":45,
+ "Vista & Stream Trails":45,
+ "Island Loop & Swamp Trail":50,
+ "River & Marsh Boardwalk":45,
+ "Bay View & Wilson Spring Loop":70,
+ "Potomac & Bushey Point Trails":70,
+ "First & Second Manassas Loops":60,
+ "Wetland Boardwalk Loop":65,
+ "Lake Accotink Loop":55,
+ "Bull Run-Occoquan (Fountainhead)":70,
+ "Potomac Heritage & Sugarland Run":65,
+ "Balls Bluff Battlefield Loop":65,
+ "Difficult Run Falls Trail":60,
+ "Cascade Falls Loop":20,"Sugarloaf Mountain — Northern Peaks / A.M. Thomas Loop":60,
+ "Wolf Rock & Chimney Rock Loop":70,"Cunningham Falls — Cliff & Lower Trail":70,
+ "King & Queen Seat — Rocks State Park":55,"Annapolis Rock via Appalachian Trail":55,
+ "Sweet Air Loop":45,"Billy Goat Trail A + Towpath Loop":50,
+ "Great Falls MD — Overlook & Gold Mine Loop":50,"Western Ridge & Valley Trail Loop":55,
+ "Scott's Run Nature Preserve Loop":60,"River Trail & Ridge Loop":60,
+ "Bull Run–Occoquan Trail (Bull Run Marina)":75,"South Valley & Laurel Loop":85,
+ "Burke Lake Loop":70,"Whiteoak Canyon Lower Falls":120,"Hawksbill Summit Loop":135,
+ "Bears Den to Raven Rocks (AT)":80,"Maryland Heights Overlook Loop":75,
+ "Loudoun Heights Loop (AT)":75,"Lindy Point & Elakala Falls":180,
+ "McKeldin Rapids & Switchback Loop":15,"Serpentine & Choate Mine Trail":30,
+ "Goose Creek & Cathedral Loop":75,"North Ridge & Ambassador Whitehouse Loop":90,
+ "Manassas Gap & Trillium Trail (AT)":100,"Riverbend to Great Falls (Potomac Heritage)":60,
+ "Torrey C. Brown (NCR) Rail Trail — Monkton stretch":45,"Cosca / Patuxent woodland loops":30,
+ "Rachel Carson Conservation Park (social trails)":40,"Patuxent River SP — Hipsley Mill social trails":30,
+ "Rock Run & Land of Promise Loop":55,"Big Red Trail Loop":50,"Washington Monument via Bartman Hill (AT)":50,
+ "Lake Shore Trail Loop":40,"Red Trail to the Beach (Fossil Hunt)":120,"Canyon Loop — Muddy Creek Falls":180,
+ "Gunpowder South & Highland Loop (Hereford)":50,"Daniels Dam & Alberton River Trail":12,"Kilgore Falls (Falling Branch)":55,
+ "Lake Roland Loop":35,"Patuxent Branch Trail":15,"Centennial Lake Loop":10,"Wincopin & Quarry Loop":18,
+ "Merryman & Glen Ellen Loop (Loch Raven)":45
+};
+function driveLabel(m){ return m<60 ? "~"+m+"m" : "~"+Math.floor(m/60)+"h"+(m%60?(m%60):""); }
+
+const HOURS = {
+ "Turkey Point Lighthouse Trail":"Daily 8 AM–sunset (seasonal)*",
+ "Cascade Falls Loop":"Daily 8 AM–sunset (seasonal)*",
+ "Sugarloaf Mountain — Northern Peaks / A.M. Thomas Loop":"Daily 8 AM–1 hr before sunset*",
+ "Wolf Rock & Chimney Rock Loop":"Trails sunrise–sunset; visitor ctr 10 AM–4:30 PM*",
+ "Cunningham Falls — Cliff & Lower Trail":"Daily 8 AM–sunset (seasonal)*",
+ "King & Queen Seat — Rocks State Park":"Daily 8 AM–sunset (seasonal)*",
+ "Annapolis Rock via Appalachian Trail":"Open 24h (Appalachian Trail)*",
+ "Sweet Air Loop":"Daily 8 AM–sunset (seasonal)*",
+ "Billy Goat Trail A + Towpath Loop":"Daily 7 AM–sunset*",
+ "Great Falls MD — Overlook & Gold Mine Loop":"Daily 7 AM–sunset*",
+ "Western Ridge & Valley Trail Loop":"Trails dawn–dusk*",
+ "Scott's Run Nature Preserve Loop":"Daily dawn–dusk*",
+ "River Trail & Ridge Loop":"Daily 7 AM–sunset*",
+ "Bull Run–Occoquan Trail (Bull Run Marina)":"Daily dawn–dusk*",
+ "South Valley & Laurel Loop":"Daily dawn–dusk*",
+ "Burke Lake Loop":"Daily dawn–dusk*",
+ "Whiteoak Canyon Lower Falls":"Open 24/7; Skyline Dr may close in bad weather*",
+ "Hawksbill Summit Loop":"Open 24/7; Skyline Dr may close in bad weather*",
+ "Bears Den to Raven Rocks (AT)":"Open 24h (Appalachian Trail)*",
+ "Maryland Heights Overlook Loop":"Lots ~9 AM–5 PM; grounds dawn–dusk*",
+ "Loudoun Heights Loop (AT)":"Lots ~9 AM–5 PM; grounds dawn–dusk*",
+ "Lindy Point & Elakala Falls":"Daily 8 AM–sunset (seasonal)*",
+ "McKeldin Rapids & Switchback Loop":"Daily 8 AM–sunset (seasonal)*",
+ "Serpentine & Choate Mine Trail":"Daily dawn–dusk*",
+ "Goose Creek & Cathedral Loop":"Daily dawn–dusk*",
+ "North Ridge & Ambassador Whitehouse Loop":"Daily 8 AM–dusk*",
+ "Manassas Gap & Trillium Trail (AT)":"Grounds dawn–dusk; visitor ctr 8:30 AM–5 PM*",
+ "Riverbend to Great Falls (Potomac Heritage)":"Daily 7 AM–sunset*",
+ "Torrey C. Brown (NCR) Rail Trail — Monkton stretch":"Daily 8 AM–sunset (seasonal)*",
+ "Cosca / Patuxent woodland loops":"Trails sunrise–sunset; visitor center Wed–Sun 9 AM–4:30 PM*",
+ "Rachel Carson Conservation Park (social trails)":"Daily dawn–dusk*",
+ "Patuxent River SP — Hipsley Mill social trails":"Daily 8 AM–sunset (seasonal)*",
+ "Rock Run & Land of Promise Loop":"Daily 8 AM–sunset (seasonal)*",
+ "Big Red Trail Loop":"Daily 8 AM–sunset (seasonal)*",
+ "Washington Monument via Bartman Hill (AT)":"Daily 8 AM–sunset (seasonal)*",
+ "Lake Shore Trail Loop":"Daily 8 AM–sunset (seasonal)*",
+ "Red Trail to the Beach (Fossil Hunt)":"Daily 8 AM–sunset (seasonal)*",
+ "Canyon Loop — Muddy Creek Falls":"Daily 8 AM–sunset (seasonal)*",
+ "Gunpowder South & Highland Loop (Hereford)":"Daily 8 AM–sunset (seasonal)*",
+ "Daniels Dam & Alberton River Trail":"Daily 8 AM–sunset (seasonal)*",
+ "Kilgore Falls (Falling Branch)":"Daily 8 AM–sunset (seasonal)*",
+ "Lake Roland Loop":"Daily dawn–dusk*",
+ "Patuxent Branch Trail":"Daily dawn–dusk*",
+ "Centennial Lake Loop":"Daily dawn–dusk*",
+ "Wincopin & Quarry Loop":"Daily dawn–dusk*",
+ "Merryman & Glen Ellen Loop (Loch Raven)":"Daily dawn–dusk*",
+ "Loggers & Laurel Loop":"Daily dawn–dusk*",
+ "Black Locust & Catoctin Trail Loop":"Trails sunrise–sunset; visitor ctr 10 AM–4:30 PM*",
+ "Little Bennett Loop":"Daily dawn–dusk*",
+ "Little Seneca Lake Shore Trail":"Daily dawn–dusk*",
+ "Perimeter Trail":"Daily dawn–dusk (campground 24h)*",
+ "Seawall & Star-Fort Walk":"Daily 9 AM–5 PM*",
+ "Cromwell Valley Loop":"Daily dawn–dusk*",
+ "Defense & Powerhouse Trail":"Daily 8 AM–sunset (seasonal)*",
+ "Shoreline & Trails":"Daily 7 AM–sunset*",
+ "Blue Heron & Loop Trails":"Daily dawn–dusk*",
+ "Jug Bay Wetlands Trails":"Daily dawn–dusk*",
+ "Heritage & Swamp Trail":"Daily 8 AM–sunset (seasonal)*",
+ "Brooks Hill & Gambrill Mill Trails":"Grounds dawn–dusk; visitor ctr 9 AM–5 PM*",
+ "Final Attack & Union Advance Trails":"Grounds dawn–dusk; visitor ctr 9 AM–5 PM*",
+ "Northwest Branch Gorge Trail":"Daily dawn–dusk*",
+ "Cabin John Stream Valley Trail":"Daily dawn–dusk*",
+ "Vista & Stream Trails":"Daily dawn–dusk*",
+ "Island Loop & Swamp Trail":"Daily 6 AM–10 PM*",
+ "River & Marsh Boardwalk":"Daily 8 AM–4 PM*",
+ "Bay View & Wilson Spring Loop":"Daily 8 AM–dusk*",
+ "Potomac & Bushey Point Trails":"Daily 8 AM–dusk*",
+ "First & Second Manassas Loops":"Grounds dawn–dusk; visitor ctr 8:30 AM–5 PM*",
+ "Wetland Boardwalk Loop":"Daily dawn–dusk*",
+ "Lake Accotink Loop":"Daily dawn–dusk*",
+ "Bull Run-Occoquan (Fountainhead)":"Daily dawn–dusk*",
+ "Potomac Heritage & Sugarland Run":"Daily dawn–dusk*",
+ "Balls Bluff Battlefield Loop":"Daily dawn–dusk*",
+ "Difficult Run Falls Trail":"Daily 7 AM–sunset*",
+ "Liberty Dam Trail":"Daily sunrise–sunset*",
+ "Prettyboy Reservoir — Hemlock Trail":"Daily sunrise–sunset*",
+ "Brighton Dam & Triadelphia Reservoir Trail":"~30 min before sunrise–sunset; trail permit (Mar–Nov)*",
+ "Rocky Gorge Reservoir (Scott's Cove)":"~30 min before sunrise–sunset; trail permit (Mar–Nov)*",
+ "Conowingo Dam — Fisherman's Park":"Daily dawn–dusk*",
+ "Grist Mill Trail — Swinging Bridge & Bloede Dam Site":"Daily 8 AM–sunset (seasonal)*",
+ "Trolley Line #9 & Patapsco River Walk (Oella)":"Daily 8 AM–sunset (seasonal)*",
+ "Jerusalem Mill & Jericho Covered Bridge Loop":"Daily 8 AM–sunset (seasonal)*",
+ "Crimea Estate & Gwynns Falls (Leakin Park)":"Daily dawn–dusk*",
+};
+
+const CAMP = {
+ "Cascade Falls Loop":"Hollofield Area campground in Patapsco Valley SP (MD DNR reservations)",
+ "Wolf Rock & Chimney Rock Loop":"Owens Creek Campground (NPS), Catoctin Mountain Park",
+ "Cunningham Falls — Cliff & Lower Trail":"Houck & Manor campgrounds + cabins (MD DNR)",
+ "Annapolis Rock via Appalachian Trail":"Annapolis Rock backcountry AT campsite (free, first-come)",
+ "Rock Run & Land of Promise Loop":"Susquehanna SP campground + cabins",
+ "Big Red Trail Loop":"Greenbrier SP campground + lake swimming",
+ "Black Locust & Catoctin Trail Loop":"Gambrill SP / Rock Run Area campground",
+ "South Valley & Laurel Loop":"Oak Ridge Campground + cabins (NPS), Prince William Forest",
+ "Perimeter Trail":"Greenbelt Park Campground (NPS), open year-round",
+ "Heritage & Swamp Trail":"Cedarville State Forest campground",
+ "Little Bennett Loop":"Little Bennett Campground (Montgomery Parks)",
+ "Lindy Point & Elakala Falls":"Blackwater Falls SP lodge, cabins & campground",
+ "Canyon Loop — Muddy Creek Falls":"Swallow Falls SP campground (+ Deep Creek Lake nearby)",
+ "Whiteoak Canyon Lower Falls":"Shenandoah NP — Big Meadows / Lewis Mtn campgrounds nearby",
+ "Hawksbill Summit Loop":"Shenandoah NP — Big Meadows Campground nearby",
+ "Bears Den to Raven Rocks (AT)":"Bears Den (ATC) campground & hostel",
+ "Jug Bay Wetlands Trails":"Group/youth camping by permit (Patuxent River Park)",
+ "Turkey Point Lighthouse Trail":"Elk Neck SP campground, cabins & camper cabins",
+};
+
+// Region-level family extras (rainy-day backups + kid-pleasers)
+const EXTRAS = {
+ "Central/Western MD":[
+  "Baltimore Inner Harbor — National Aquarium, Maryland Science Center, Port Discovery kids' museum",
+  "B&O Railroad Museum & the Maryland Zoo (Baltimore)",
+  "Catoctin Wildlife Preserve & Zoo (Thurmont) — pairs with Catoctin/Cunningham hikes",
+  "Clark's Elioak Farm 'Enchanted Forest' & Larriland pick-your-own (Howard County)",
+  "Ladew Topiary Gardens (Monkton) and historic Ellicott City Main St",
+  "Frederick — National Museum of Civil War Medicine, shops & dining"
+ ],
+ "DC Metro / Close-in":[
+  "Smithsonian museums on the National Mall — Air & Space, Natural History (all free)",
+  "Smithsonian National Zoo (free), Rock Creek Park Nature Center & Planetarium",
+  "NASA Goddard Visitor Center (Greenbelt) & College Park Aviation Museum (free)",
+  "Brookside Gardens + Wheaton Regional carousel & train",
+  "Watkins Regional Park (carousel, Old Maryland Farm) and Cabin John train"
+ ],
+ "Northern Virginia":[
+  "Smithsonian Udvar-Hazy Air & Space Center (Chantilly) — huge, free",
+  "National Museum of the Marine Corps (Triangle) — free, excellent",
+  "Luray Caverns (Shenandoah Valley) & Mount Vernon estate",
+  "Frying Pan Farm Park (Herndon) and historic Occoquan riverfront town",
+  "Loudoun farms & wineries — Great Country Farms, Bluemont/Dirt Farm"
+ ],
+ "WV / Nearby Getaways":[
+  "Harpers Ferry historic Lower Town — museums, outfitters, tubing",
+  "Luray Caverns & Skyline Drive overlooks (Shenandoah Valley)",
+  "Deep Creek Lake — boating, Wisp Resort, ASCI whitewater (near Swallow Falls)",
+  "Calvert Marine Museum & Solomons Island (pairs with Calvert Cliffs)",
+  "Blackwater Falls lodge, sledding & nearby Canaan Valley"
+ ]
+};
+
+const $ = s => document.querySelector(s);
+const grid = $("#grid"), empty = $("#empty");
+
+// ── Personal "hiked" tracker (saved in this browser) ──
+let DONE = new Set();
+try { DONE = new Set(JSON.parse(localStorage.getItem("trailmate_done")||"[]")); } catch(e){}
+function saveDone(){ try{ localStorage.setItem("trailmate_done", JSON.stringify([...DONE])); }catch(e){} }
+function attrEsc(s){ return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;"); }
+function toggleDone(name){ if(DONE.has(name)) DONE.delete(name); else DONE.add(name); saveDone(); render(); scheduleSync(); }
+
+// ── Personal notes per trail (saved in this browser) ──
+let NOTES = {};
+try { NOTES = JSON.parse(localStorage.getItem("trailmate_notes")||"{}") || {}; } catch(e){}
+function saveNotes(){ try{ localStorage.setItem("trailmate_notes", JSON.stringify(NOTES)); }catch(e){} }
+function txtEsc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+
+// ── GitHub sync (commits your data to a file in your repo) ──
+let GH = {};
+try { GH = JSON.parse(localStorage.getItem("trailmate_gh")||"{}") || {}; } catch(e){}
+let GH_SHA = null, syncTimer = null;
+function ghOn(){ return !!(GH.owner && GH.repo && GH.token && GH.path); }
+function setStatus(t){ const el=document.getElementById("syncstatus"); if(el) el.textContent=t; }
+function ghMsg(t){ const el=document.getElementById("gh_msg"); if(el) el.textContent=t; }
+function b64enc(str){ return btoa(unescape(encodeURIComponent(str))); }
+function b64dec(b){ return decodeURIComponent(escape(atob((b||"").replace(/\n/g,"")))); }
+function ghUrl(){ return "https://api.github.com/repos/"+GH.owner+"/"+GH.repo+"/contents/"+GH.path.split("/").map(encodeURIComponent).join("/"); }
+function ghHeaders(){ return {Authorization:"Bearer "+GH.token, Accept:"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28"}; }
+function payload(){ return JSON.stringify({app:"TrailMate DMV", updated:new Date().toISOString(), done:[...DONE], notes:NOTES}, null, 2); }
+async function ghPull(silent){
+  if(!ghOn()) return; setStatus("Syncing…");
+  try{
+    const r=await fetch(ghUrl()+"?ref="+encodeURIComponent(GH.branch||"main"),{headers:ghHeaders()});
+    if(r.status===200){ const j=await r.json(); GH_SHA=j.sha; const d=JSON.parse(b64dec(j.content));
+      if(Array.isArray(d.done)){ DONE=new Set(d.done); saveDone(); }
+      if(d.notes && typeof d.notes==="object"){ NOTES=d.notes; saveNotes(); }
+      render(); setStatus("Synced ✓"); if(!silent) ghMsg("Pulled latest from GitHub ✓");
+    } else if(r.status===404){ GH_SHA=null; setStatus("Connected"); if(!silent) ghMsg("No data file yet — it'll be created on your first change."); }
+    else { setStatus("Sync error"); if(!silent) ghMsg("GitHub error "+r.status+" (check token/repo/path)."); }
+  }catch(e){ setStatus("Offline"); if(!silent) ghMsg("Network error: "+e.message); }
+}
+async function ghPush(){
+  if(!ghOn()) return; setStatus("Saving…");
+  const body={ message:"TrailMate update "+new Date().toISOString(), content:b64enc(payload()), branch:GH.branch||"main" };
+  if(GH_SHA) body.sha=GH_SHA;
+  try{
+    let r=await fetch(ghUrl(),{method:"PUT",headers:ghHeaders(),body:JSON.stringify(body)});
+    if(r.status===409 || r.status===422){ await ghPull(true); body.sha=GH_SHA; r=await fetch(ghUrl(),{method:"PUT",headers:ghHeaders(),body:JSON.stringify(body)}); }
+    if(r.ok){ const j=await r.json(); GH_SHA=j.content.sha; setStatus("Synced ✓"); }
+    else { setStatus("Save error "+r.status); }
+  }catch(e){ setStatus("Offline — saved locally"); }
+}
+function scheduleSync(){ if(!ghOn()){ return; } clearTimeout(syncTimer); setStatus("Saving…"); syncTimer=setTimeout(ghPush,1500); }
+const regions = [...new Set(TRAILS.map(t=>t.region))];
+const regionSel = $("#region");
+regions.forEach(r=>{ const o=document.createElement("option"); o.value=r; o.textContent=r; regionSel.appendChild(o); });
+
+// quick chips
+const CHIPS = ["Hidden gem","Off-map","Waterfall","Dam","Ruins","Camping","Kid-friendly","Dog-friendly","Views","Free parking","AT","Rock scramble","Stroller-OK","Swimming"];
+const chipBox = $("#chips"); let activeChip = "";
+CHIPS.forEach(c=>{
+  const el=document.createElement("span"); el.className="chip"; el.textContent=c;
+  el.onclick=()=>{ activeChip = activeChip===c ? "" : c;
+    document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active", x.textContent===activeChip)); render(); };
+  chipBox.appendChild(el);
+});
+
+function diffClass(d){ return d==="Easy"?"d-easy":d==="Moderate"?"d-mod":"d-hard"; }
+function distBucket(d){ return d<4?"s":d<=6?"m":"l"; }
+function link(base){ return encodeURIComponent(base); }
+
+function card(t){
+  const addr = ADDR[t.name] || t.map;
+  const altUrl = "https://www.alltrails.com/search?q="+link(t.q);
+  const redditUrl = "https://www.reddit.com/search/?q="+link(t.q+" hike");
+  const mapUrl = "https://www.google.com/maps/dir/?api=1&origin="+link(HOME)+"&destination="+link(addr);
+  const drv = DRIVE[t.name];
+  const placeUrl = "https://www.google.com/maps/search/?api=1&query="+link(addr);
+  const eat = c => "https://www.google.com/maps/search/?api=1&query="+link(c+" near "+addr);
+  const embedSrc = "https://maps.google.com/maps?q="+link(addr)+"&z=14&output=embed";
+  const done = DONE.has(t.name);
+  const an = attrEsc(t.name);
+  const badge = (done ? `<span class="donebadge">✓ Hiked</span><br>` : "")
+              + (t.informal ? `<span class="gembadge off">⚑ Off-map / informal</span><br>`
+              : t.gem ? `<span class="gembadge">★ Local hidden gem</span><br>` : "");
+  const note = t.informal ? `<div class="note">Heads-up: unofficial trail with little/no signage and no facilities. Bring an offline map (Gaia/CalTopo), water, and tell someone your plan.</div>` : "";
+  return `<div class="card${done?' done':''}">
+    <div class="top">
+      ${badge}
+      <h3>${t.name}</h3>
+      <div class="region">📍 ${t.park} · ${t.region}</div>
+      <div class="addr"><a href="${placeUrl}" target="_blank" rel="noopener">📌 ${addr}</a></div>
+      <div class="hours">🕖 ${HOURS[t.name] || "Daily, ~sunrise–sunset (seasonal)*"}</div>
+      <div class="stats">
+        <span class="pill dist">${t.dist} mi</span>
+        <span class="diff ${diffClass(t.diff)}">${t.diff}</span>
+        ${drv?`<span class="pill drive" title="Approx. driving time from home, no traffic">🚗 ${driveLabel(drv)}</span>`:""}
+        <span class="pill">${t.town}</span>
+      </div>
+      <div class="tags">${t.tags.map(x=>`<span class="tag">${x}</span>`).join("")}</div>
+    </div>
+    <div class="desc">${t.desc}</div>
+    ${note}
+    ${CAMP[t.name]?`<div class="camp">🏕️ Weekend camping: ${CAMP[t.name]}</div>`:""}
+    <div class="acc">
+      <details><summary><span class="ic">🅿️</span> Parking & logistics</summary>
+        <div class="panel">${t.parking}</div></details>
+      <details><summary><span class="ic">🍽️</span> Nearby food & things to do</summary>
+        <div class="panel"><ul>${t.nearby.map(n=>`<li>${n}</li>`).join("")}</ul></div></details>
+      <details><summary><span class="ic">🍴</span> Where to eat nearby (live)</summary>
+        <div class="panel">
+          <div class="maplinks">
+            <a href="${eat("Indian restaurants")}" target="_blank" rel="noopener">🇮🇳 Indian</a>
+            <a href="${eat("best breakfast")}" target="_blank" rel="noopener">🍳 Breakfast</a>
+            <a href="${eat("best lunch and dinner restaurants")}" target="_blank" rel="noopener">🍽️ Lunch &amp; dinner</a>
+            <a href="${eat("bars and breweries")}" target="_blank" rel="noopener">🍺 Bars &amp; breweries</a>
+            <a href="${eat("top rated restaurants")}" target="_blank" rel="noopener">⭐ Top-rated</a>
+            <a href="${eat("popular country restaurants")}" target="_blank" rel="noopener">🌾 Country favorites</a>
+          </div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:7px">Opens live Google Maps results near this trailhead — always current.</div>
+        </div></details>
+      <details class="mapwrap"><summary><span class="ic">🗺️</span> Map & location</summary>
+        <div class="panel">
+          <iframe class="gmap" data-src="${embedSrc}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            title="Map of ${t.name}"></iframe>
+          <div class="maplinks">
+            <a href="${mapUrl}" target="_blank" rel="noopener">↗ Open driving directions</a>
+            <a href="${altUrl}" target="_blank" rel="noopener">↗ Trail route map (AllTrails)</a>
+          </div>
+        </div></details>
+      <details><summary><span class="ic">👨‍👩‍👧</span> Family extras nearby (rainy-day backups)</summary>
+        <div class="panel"><ul>${(EXTRAS[t.region]||[]).map(x=>`<li>${x}</li>`).join("")}</ul></div></details>
+      <details ${NOTES[t.name]?"open":""}><summary><span class="ic">📝</span> My notes${NOTES[t.name]?'<span class="noteflag">●</span>':""}</summary>
+        <div class="panel"><textarea class="notebox" data-name="${an}" placeholder="Add your own notes — trail conditions, what the kids liked, best parking, where you ate…">${txtEsc(NOTES[t.name]||"")}</textarea></div></details>
+    </div>
+    <div class="links">
+      <a class="btn map" href="${mapUrl}" target="_blank" rel="noopener">🧭 Directions from home</a>
+      <a class="btn" href="${altUrl}" target="_blank" rel="noopener">AllTrails</a>
+      <a class="btn" href="${redditUrl}" target="_blank" rel="noopener">Reddit</a>
+      <button class="btn done-btn${done?' on':''}" data-name="${an}">${done?'✓ Hiked':'＋ Mark hiked'}</button>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const q=$("#q").value.trim().toLowerCase();
+  const reg=$("#region").value, df=$("#diff").value, ds=$("#dist").value, st=$("#status").value;
+  const list = TRAILS.filter(t=>{
+    if(reg && t.region!==reg) return false;
+    if(df && t.diff!==df) return false;
+    if(ds && distBucket(t.dist)!==ds) return false;
+    if(st==="todo" && DONE.has(t.name)) return false;
+    if(st==="done" && !DONE.has(t.name)) return false;
+    if(activeChip){
+      if(activeChip==="Camping"){ if(!CAMP[t.name]) return false; }
+      else if(!t.tags.some(tag=>tag.toLowerCase().includes(activeChip.toLowerCase()))) return false;
+    }
+    if(q){ const hay=(t.name+" "+t.park+" "+t.town+" "+t.region+" "+t.tags.join(" ")+" "+t.desc).toLowerCase();
+      if(!hay.includes(q)) return false; }
+    return true;
+  });
+  const sort=$("#sort").value;
+  list.sort((a,b)=>{
+    if(sort==="drive") return (DRIVE[a.name]||999)-(DRIVE[b.name]||999);
+    if(sort==="hike")  return a.dist-b.dist;
+    if(sort==="hikeD") return b.dist-a.dist;
+    return 0; // featured = original curated order
+  });
+  grid.innerHTML = list.map(card).join("");
+  // lazy-load each map iframe only when its section is opened (keeps the page fast)
+  document.querySelectorAll("details.mapwrap").forEach(d=>{
+    d.addEventListener("toggle",()=>{
+      if(d.open){ const f=d.querySelector("iframe.gmap"); if(f && !f.src) f.src=f.dataset.src; }
+    });
+  });
+  empty.style.display = list.length? "none":"block";
+  $("#count").textContent = list.length+" of "+TRAILS.length+" trails";
+  const dc=TRAILS.filter(t=>DONE.has(t.name)).length;
+  $("#barfill").style.width=Math.round(dc/TRAILS.length*100)+"%";
+  $("#progtext").textContent=dc+" / "+TRAILS.length+" hiked";
+}
+["q","region","diff","dist","sort","status"].forEach(id=>$("#"+id).addEventListener("input",render));
+grid.addEventListener("click",e=>{ const b=e.target.closest(".done-btn"); if(b) toggleDone(b.dataset.name); });
+grid.addEventListener("input",e=>{ const ta=e.target.closest(".notebox"); if(ta){ const v=ta.value.trim(); if(v) NOTES[ta.dataset.name]=ta.value; else delete NOTES[ta.dataset.name]; saveNotes(); scheduleSync(); } });
+$("#resetdone").addEventListener("click",e=>{ e.preventDefault(); if(DONE.size && confirm("Clear all your hiked check-offs? (Your notes are kept.)")){ DONE.clear(); saveDone(); render(); } });
+// Sync panel wiring
+const panel=$("#syncpanel");
+function fillSyncForm(){ $("#gh_owner").value=GH.owner||""; $("#gh_repo").value=GH.repo||"";
+  $("#gh_branch").value=GH.branch||"main"; $("#gh_path").value=GH.path||"data/trailmate-data.json"; $("#gh_token").value=GH.token||""; }
+$("#syncbtn").addEventListener("click",e=>{ e.preventDefault(); fillSyncForm(); ghMsg(""); panel.hidden=false; });
+$("#gh_close").addEventListener("click",e=>{ e.preventDefault(); panel.hidden=true; });
+panel.addEventListener("click",e=>{ if(e.target===panel) panel.hidden=true; });
+$("#gh_save").addEventListener("click",async e=>{ e.preventDefault();
+  GH={ owner:$("#gh_owner").value.trim(), repo:$("#gh_repo").value.trim(), branch:($("#gh_branch").value.trim()||"main"),
+       path:($("#gh_path").value.trim()||"data/trailmate-data.json"), token:$("#gh_token").value.trim() };
+  if(!ghOn()){ ghMsg("Please fill in owner, repo, path and token."); return; }
+  localStorage.setItem("trailmate_gh", JSON.stringify(GH));
+  ghMsg("Connecting…"); GH_SHA=null; await ghPull(false); await ghPush(); ghMsg("Connected & synced ✓ You can close this.");
+});
+$("#gh_load").addEventListener("click",async e=>{ e.preventDefault(); if(!ghOn()){ ghMsg("Connect first."); return; } await ghPull(false); });
+$("#gh_disconnect").addEventListener("click",e=>{ e.preventDefault(); GH={}; GH_SHA=null; localStorage.removeItem("trailmate_gh"); setStatus("Saved locally"); ghMsg("Disconnected. Data stays in this browser."); });
+
+render();
+setStatus(ghOn()?"Syncing…":"Saved in this browser");
+if(ghOn()) ghPull(true);
+</script>
+</body>
+</html>
