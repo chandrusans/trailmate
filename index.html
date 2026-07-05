@@ -136,6 +136,107 @@
   footer code{background:#eef2ef;padding:1px 5px;border-radius:4px}
   @media(max-width:520px){.count{width:100%;margin:0}}
 </style>
+<style id="futuristic">
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+:root{
+  --accent:#06b6d4; --accent2:#10b981; --violet:#7c5cff;
+  --line:#e6eeea; --bg:#eef4f1;
+  --shadow:0 1px 2px rgba(16,40,30,.06),0 12px 34px -16px rgba(16,60,45,.22);
+}
+html{scroll-behavior:smooth}
+*{transition:background-color .2s ease, box-shadow .25s ease, transform .2s ease, border-color .2s ease, color .2s ease}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:
+    radial-gradient(1200px 520px at 12% -12%, rgba(6,182,212,.12), transparent 60%),
+    radial-gradient(1000px 520px at 112% -4%, rgba(16,185,129,.12), transparent 55%),
+    linear-gradient(180deg,#eef4f1,#f6f9f7 45%);
+  background-attachment:fixed;}
+h1,h3,.tab,.gembadge,.donebadge{font-family:'Space Grotesk','Inter',sans-serif;letter-spacing:.2px}
+
+/* Header aurora */
+header{position:relative;overflow:hidden;background:linear-gradient(135deg,#0b3b2e,#12674a 55%,#0e7c73)}
+header::before{content:"";position:absolute;inset:-50% -10% auto -10%;height:200%;pointer-events:none;
+  background:
+   radial-gradient(320px 220px at 20% 30%, rgba(45,212,191,.38), transparent 60%),
+   radial-gradient(340px 240px at 82% 18%, rgba(124,92,255,.30), transparent 60%),
+   radial-gradient(300px 220px at 55% 92%, rgba(16,185,129,.32), transparent 60%);
+  filter:blur(8px);animation:aurora 16s ease-in-out infinite alternate;}
+@keyframes aurora{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(-5%,4%,0) scale(1.1)}}
+header .wrap{position:relative;z-index:1}
+header h1{font-size:30px;text-shadow:0 2px 22px rgba(0,0,0,.28)}
+header h1::after{content:"";display:inline-block;width:9px;height:9px;margin-left:9px;border-radius:50%;
+  background:#5eead4;box-shadow:0 0 14px 4px rgba(94,234,212,.85);animation:pulse 2.2s infinite;vertical-align:middle}
+@keyframes pulse{50%{opacity:.35;transform:scale(.85)}}
+
+/* Progress shimmer */
+.bar{height:10px;background:rgba(255,255,255,.22)}
+.bar span{background:linear-gradient(90deg,#5eead4,#34d399,#22d3ee,#5eead4);background-size:220% 100%;
+  box-shadow:0 0 12px rgba(94,234,212,.75);animation:shimmer 3s linear infinite}
+@keyframes shimmer{to{background-position:220% 0}}
+
+/* Glass sticky controls */
+.controls{background:rgba(255,255,255,.7);backdrop-filter:blur(16px) saturate(1.3);
+  border-bottom:1px solid rgba(255,255,255,.55);box-shadow:0 10px 34px -22px rgba(0,0,0,.35)}
+input[type=search],select{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:12px}
+input[type=search]:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(6,182,212,.18)}
+
+/* Tabs */
+.tabs{gap:8px}
+.tab{background:rgba(255,255,255,.55);backdrop-filter:blur(8px);border:1px solid var(--line);border-bottom:none;border-radius:15px 15px 0 0}
+.tab:hover{transform:translateY(-1px);color:var(--green-dk)}
+.tab.active{background:#fff;color:var(--green-dk);box-shadow:0 -4px 16px -8px rgba(6,182,212,.55);border-color:transparent;position:relative}
+.tab.active::after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+
+/* Chips */
+.chip{background:rgba(255,255,255,.72);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:999px}
+.chip:hover{border-color:var(--accent);color:var(--green-dk);transform:translateY(-1px)}
+.chip.active{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;border-color:transparent;box-shadow:0 8px 18px -7px rgba(6,182,212,.6)}
+
+/* Cards */
+.card{border:1px solid rgba(255,255,255,.65);border-radius:20px;background:rgba(255,255,255,.85);
+  backdrop-filter:blur(8px);box-shadow:var(--shadow);overflow:hidden}
+.card:hover{transform:translateY(-6px);box-shadow:0 22px 44px -20px rgba(12,60,45,.4),0 0 0 1px rgba(6,182,212,.28)}
+.card .top h3{font-size:18px}
+.cardimg{height:172px;transition:transform .55s ease}
+.card:hover .cardimg{transform:scale(1.06)}
+
+/* Pills & difficulty */
+.pill{border-radius:999px}
+.diff{border-radius:999px;box-shadow:0 3px 9px -4px rgba(0,0,0,.35)}
+.d-easy{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.d-mod{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.d-hard{background:linear-gradient(135deg,#fb7185,#e11d48)}
+.pill.drive{background:linear-gradient(135deg,#ede9fe,#e0e7ff);color:#6d28d9}
+.pill.dist{background:linear-gradient(135deg,#e0f2fe,#dbeafe);color:#2563eb}
+
+/* Buttons */
+.btn{border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.92)}
+.btn:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--green-dk);box-shadow:0 9px 20px -11px rgba(6,182,212,.65)}
+.btn.map{background:linear-gradient(135deg,#0e7c73,#12b5a5);color:#fff;border-color:transparent;box-shadow:0 9px 20px -9px rgba(18,181,165,.7)}
+.btn.map:hover{filter:brightness(1.07);color:#fff}
+.done-btn.on{background:linear-gradient(135deg,#16a34a,#0e7c73);border-color:transparent}
+
+/* Accordions */
+summary:hover{background:rgba(6,182,212,.06)}
+details[open]>summary{color:var(--accent)}
+.notebox:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(6,182,212,.15)}
+
+/* Parks table */
+.ptable th{background:rgba(255,255,255,.88);backdrop-filter:blur(6px)}
+.ptable tr:hover td{background:rgba(6,182,212,.045)}
+.ptoggle{border-radius:999px}
+.pchip{background:linear-gradient(135deg,#ecfdf5,#e0f2fe);color:#0f766e;border:1px solid rgba(6,182,212,.15)}
+
+/* Sync status + badges glow */
+.gembadge{box-shadow:0 3px 10px -5px rgba(200,132,60,.5)}
+.donebadge{box-shadow:0 3px 10px -5px rgba(31,107,59,.4)}
+
+/* Scrollbar + selection */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:linear-gradient(#34d399,#22d3ee);border-radius:8px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+::selection{background:rgba(6,182,212,.25)}
+</style>
 </head>
 <body>
 <header>
