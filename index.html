@@ -125,6 +125,9 @@
   .pdetail td{background:#f7faf8}
   .pdwrap{padding:6px 4px}
   .pdesc{font-size:13px;color:#3c463f;margin:2px 0 10px;line-height:1.55}
+  .pmeta{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 12px}
+  .pchip{font-size:12px;background:var(--green-lt);color:var(--green-dk);border-radius:999px;padding:4px 10px;font-weight:600}
+  .pdfoot .btn{margin-right:6px}
   .pdwrap ul{margin:6px 0 4px;padding-left:18px;columns:2;column-gap:26px}
   .pdwrap li{margin:2px 0;font-size:12.5px;break-inside:avoid}
   .pdfoot{font-size:12px;color:var(--muted);margin-top:6px}
@@ -1568,6 +1571,7 @@ const WIKI=[
  ["Oregon Ridge","Oregon Ridge Park"],["Wakefield Valley","Westminster, Maryland"],["Rachel Carson","Rachel Carson"],["Banneker","Benjamin Banneker"],["Sleepy Creek","Sleepy Creek Wildlife Management Area"]
 ];
 function wikiTitleFor(t){ const hay=((t.park||"")+" "+t.name).toLowerCase(); for(const [k,title] of WIKI){ if(hay.includes(k.toLowerCase())) return title; } return null; }
+function parkWikiTitle(name){ const low=(name||"").toLowerCase(); for(const [k,title] of WIKI){ if(low.includes(k.toLowerCase())) return title; } return null; }
 async function loadWikiImg(img){
   const title=img.dataset.wiki; if(!title) return;
   const ck="wimg_"+title;
@@ -1886,6 +1890,9 @@ function renderParks(){
   });
   $("#pbody").innerHTML = rows.map((p,i)=>{
     const off="https://www.google.com/search?q="+encodeURIComponent(p[0]+" official trail map hours");
+    const dir="https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(HOME)+"&destination="+encodeURIComponent(p[0]);
+    const photos="https://www.google.com/search?tbm=isch&q="+encodeURIComponent(p[0]+" park");
+    const pt=parkWikiTitle(p[0]);
     const freeCls=/free/i.test(p[3])&&!/fort|museum|camping/i.test(p[3])?" free":"";
     const list=trailListFor(p[0]);
     const detail = list.length ? "<ul>"+list.map(x=>"<li>"+x+"</li>").join("")+"</ul>" : "<em>Main trails vary — see the official park map below.</em>";
@@ -1896,8 +1903,9 @@ function renderParks(){
       <td class="fee${freeCls}">${p[3]}</td>
       <td><button class="btn ptoggle" data-i="${i}">▾ ${list.length||""} trails</button></td>
     </tr>
-    <tr class="pdetail" id="pd${i}" hidden><td colspan="5"><div class="pdwrap">${PARKINFO[p[0]]?`<div class="pdesc">${PARKINFO[p[0]]}</div>`:""}<strong>Trails in ${p[0]}:</strong>${detail}<div class="pdfoot">🗺️ Full official trail map (free): <a href="${off}" target="_blank" rel="noopener">${p[0]} website</a></div></div></td></tr>`;
+    <tr class="pdetail" id="pd${i}" hidden><td colspan="5"><div class="pdwrap">${pt?`<div class="wikiwrap"><img class="cardimg wikiimg" data-wiki="${attrEsc(pt)}" alt="${attrEsc(p[0])}" loading="lazy"><div class="imgcap">Photo: Wikimedia Commons</div></div>`:""}${PARKINFO[p[0]]?`<div class="pdesc">${PARKINFO[p[0]]}</div>`:""}<div class="pmeta"><span class="pchip">🥾 ${p[2]}</span><span class="pchip fee${freeCls}">💵 ${p[3]}</span></div><strong>Trails in ${p[0]}:</strong>${detail}<div class="pdfoot"><a class="btn map" href="${dir}" target="_blank" rel="noopener">🧭 Directions</a> <a class="btn" href="${off}" target="_blank" rel="noopener">🗺️ Official map (free)</a> <a class="btn" href="${photos}" target="_blank" rel="noopener">📷 Photos</a></div></div></td></tr>`;
   }).join("");
+  document.querySelectorAll("#pbody img.wikiimg").forEach(loadWikiImg);
   $("#pcount").textContent = rows.length+" of "+PARKS.length+" parks";
 }
 $("#pbody").addEventListener("click",e=>{ const b=e.target.closest(".ptoggle"); if(!b) return; const d=document.getElementById("pd"+b.dataset.i); if(!d) return; d.hidden=!d.hidden; b.textContent=(d.hidden?"▾ ":"▴ ")+b.textContent.replace(/^[▾▴]\s*/,""); });
